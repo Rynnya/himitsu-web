@@ -1,0 +1,565 @@
+﻿@using Microsoft.AspNetCore.Http; 
+@{ var nullable = "-"; var culture = new System.Globalization.CultureInfo("ru-RU");
+    var playstyle = ""; switch (Convert.ToInt32(ViewBag.Data["play_style"])) { default: playstyle = ""; break;
+        case 1: playstyle = "Играет с мышью"; break;
+        case 2: playstyle = "Играет с планшетом"; break;
+        case 3: playstyle = "Играет с мышкой и планшетом"; break;
+        case 4: playstyle = "Играет с клавиатурой"; break;
+        case 5: playstyle = "Играет с клавиатурой и мышкой"; break;
+        case 6: playstyle = "Играет с клавиатурой и планшетом"; break;
+        case 8: playstyle = "Играет с тачскрином"; break;
+        case 9: playstyle = "Играет с тачскрином и мышкой"; break;
+        case 10: playstyle = "Играет с тачскрином и планшетом"; break;
+        case 12: playstyle = "Играет с клавиатурой и тачскрином"; break;
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href=".ico">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/content-1.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/profile.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Himitsu</title>
+</head>
+
+<header id="header">
+    <div id="header-top">
+        <a title="Открыть меню"><img src="../resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()" /></a>
+        <div id="header-profile-container">
+        </div>
+        @{ if (Context.Session.Keys.Contains("userid"))
+            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="../resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
+        <a href="/" class="header-button-a"><img src="../resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
+        <a href="/leaderboard" class="header-button-a"><img src="../resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
+        <a href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="../resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
+    </div>
+    <div id="header-bottom">
+        <a href="/about" class="header-button-a"><img src="../resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
+        <a href="/settings" class="header-button-a"><img src="../resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
+        @{ if (Context.Session.Keys.Contains("userid"))
+            { <a href="/logout" class="header-button-a"><img src="../resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
+    </div>
+</header>
+
+<body onload="initJS(@ViewBag.Data["id"], @ViewBag.Data["favourite_relax"], @ViewBag.Data["favourite_mode"])">
+    <div id="content">
+        <div class="panel">
+
+            <div id="profile-top-bg" class="white-text">
+                <img src="../resources/profile/profile-top-icon.svg" height="40px" /><text>Профиль @ViewBag.Data["username"]</text>
+            </div>
+
+            <div class="mode-selector-panel">
+              <div>
+                <li id="mode-vanilla" onclick="osuMode(0), profileMode(0), updateRelax(0)">Vanilla</li>
+                <li id="mode-relax" onclick="osuMode(1), profileMode(1), updateRelax(1)">Relax</li>
+              </div>
+              <div class="mode-selector-panel-right">
+                <li id="mode-std" onclick="osuGameMode(0), profileGameMode(0), updateScores(0)">osu!standard</li>
+                <li id="mode-taiko" onclick="osuGameMode(1), profileGameMode(1), updateScores(1)">osu!taiko</li>
+                <li id="mode-ctb" onclick="osuGameMode(2), profileGameMode(2), updateScores(2)">osu!catch</li>
+                <li id="mode-mania" onclick="osuGameMode(3), profileGameMode(3), updateScores(3)">osu!mania</li>
+              </div>
+            </div>
+
+            <div class="profile-separator">
+            </div>
+
+            <div id="profile-main-bg" class="white-text">
+                <div id="profile-main-background">
+                    <img src="https://a.ppy.sh/@ViewBag.Data["id"]" id="avatar" onclick="profileFullBg()" />
+
+
+                    <div id="profile-tables">
+
+                        <div id="profile-all-tables" class="profile-main-table-container text-shadow-6">
+
+                          <!-- Vanilla -->
+
+                          <div id="profile-table-std">
+                              <div>
+                                <table style="margin-right: auto">
+                                    <tr class="bold-text">
+                                        <td>@ViewBag.Data["std"]["pp"]pp</td>
+                                        <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["std"]["accuracy"]), 2)%</td>
+                                    </tr>
+                                    <tr class="bold-text">
+                                        <td>#@{ if (ViewBag.Data["std"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["std"]["global_leaderboard_rank"]; } (Global)</td>
+                                        <td class="text-right">#@{ if (ViewBag.Data["std"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["std"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Количество игр</td>
+                                        <td class="text-right">@ViewBag.Data["std"]["playcount"]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Время в игре</td>
+                                        <td class="text-right">@{ var time_std = Convert.ToUInt64(ViewBag.Data["std"]["play_time"]); var hours_std = time_std / 3600; var min_std = time_std % 3600 / 60; } @{@hours_std}ч @{@min_std}м</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">@playstyle</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>Всего очков</td>
+                                        <td class="text-right">@ViewBag.Data["std"]["total_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Рейтинговых очков</td>
+                                        <td class="text-right">@ViewBag.Data["std"]["ranked_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Всего попаданий</td>
+                                        <td class="text-right">@ViewBag.Data["std"]["total_hits"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Реплеев просмотрено</td>
+                                        <td class="text-right">@ViewBag.Data["std"]["replays_watched"]</td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
+
+                          <div id="profile-table-taiko">
+                            <div>
+                              <table style="margin-right: auto">
+                                  <tr class="bold-text">
+                                        <td>@ViewBag.Data["taiko"]["pp"]pp</td>
+                                        <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["taiko"]["accuracy"]), 2)%</td>
+                                    </tr>
+                                    <tr class="bold-text">
+                                        <td>#@{ if (ViewBag.Data["taiko"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["taiko"]["global_leaderboard_rank"]; } (Global)</td>
+                                        <td class="text-right">#@{ if (ViewBag.Data["taiko"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["taiko"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Количество игр</td>
+                                        <td class="text-right">@ViewBag.Data["taiko"]["playcount"]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Время в игре</td>
+                                        <td class="text-right">@{ var time_taiko = Convert.ToUInt64(ViewBag.Data["taiko"]["play_time"]); var hours_taiko = time_taiko / 3600; var min_taiko = time_taiko % 3600 / 60; } @{@hours_taiko}ч @{@min_taiko}м</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">@playstyle</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>Всего очков</td>
+                                        <td class="text-right">@ViewBag.Data["taiko"]["total_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Рейтинговых очков</td>
+                                        <td class="text-right">@ViewBag.Data["taiko"]["ranked_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Всего попаданий</td>
+                                        <td class="text-right">@ViewBag.Data["taiko"]["total_hits"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Реплеев просмотрено</td>
+                                        <td class="text-right">@ViewBag.Data["taiko"]["replays_watched"]</td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
+
+                          <div id="profile-table-ctb">
+                            <div>
+                              <table style="margin-right: auto">
+                                <tr class="bold-text">
+                                        <td>@ViewBag.Data["ctb"]["pp"]pp</td>
+                                        <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["ctb"]["accuracy"]), 2)%</td>
+                                    </tr>
+                                    <tr class="bold-text">
+                                        <td>#@{ if (ViewBag.Data["ctb"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["ctb"]["global_leaderboard_rank"]; } (Global)</td>
+                                        <td class="text-right">#@{ if (ViewBag.Data["ctb"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["ctb"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Количество игр</td>
+                                        <td class="text-right">@ViewBag.Data["ctb"]["playcount"]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Время в игре</td>
+                                        <td class="text-right">@{ var time_ctb = Convert.ToUInt64(ViewBag.Data["ctb"]["play_time"]); var hours_ctb = time_ctb / 3600; var min_ctb = time_ctb % 3600 / 60; } @{@hours_ctb}ч @{@min_ctb}м</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">@playstyle</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>Всего очков</td>
+                                        <td class="text-right">@ViewBag.Data["ctb"]["total_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Рейтинговых очков</td>
+                                        <td class="text-right">@ViewBag.Data["ctb"]["ranked_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Всего попаданий</td>
+                                        <td class="text-right">@ViewBag.Data["ctb"]["total_hits"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Реплеев просмотрено</td>
+                                        <td class="text-right">@ViewBag.Data["ctb"]["replays_watched"]</td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
+
+                          <div id="profile-table-mania">
+                            <div>
+                              <table style="margin-right: auto">
+                                  <tr class="bold-text">
+                                        <td>@ViewBag.Data["mania"]["pp"]pp</td>
+                                        <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["mania"]["accuracy"]), 2)%</td>
+                                    </tr>
+                                    <tr class="bold-text">
+                                        <td>#@{ if (ViewBag.Data["mania"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["mania"]["global_leaderboard_rank"]; } (Global)</td>
+                                        <td class="text-right">#@{ if (ViewBag.Data["mania"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["mania"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Количество игр</td>
+                                        <td class="text-right">@ViewBag.Data["mania"]["playcount"]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Время в игре</td>
+                                        <td class="text-right">@{ var time_mania = Convert.ToUInt64(ViewBag.Data["mania"]["play_time"]); var hours_mania = time_mania / 3600; var min_mania = time_mania % 3600 / 60; } @{@hours_mania}ч @{@min_mania}м</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">@playstyle</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>Всего очков</td>
+                                        <td class="text-right">@ViewBag.Data["mania"]["total_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Рейтинговых очков</td>
+                                        <td class="text-right">@ViewBag.Data["mania"]["ranked_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Всего попаданий</td>
+                                        <td class="text-right">@ViewBag.Data["mania"]["total_hits"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Реплеев просмотрено</td>
+                                        <td class="text-right">@ViewBag.Data["mania"]["replays_watched"]</td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
+
+                          <!-- Relax -->
+
+                          <div id="profile-table-std-relax">
+                            <div>
+                              <table style="margin-right: auto">
+                                  <tr class="bold-text">
+                                        <td>@ViewBag.Relax["std"]["pp"]pp</td>
+                                        <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Relax["std"]["accuracy"]), 2)%</td>
+                                    </tr>
+                                    <tr class="bold-text">
+                                        <td>#@{ if (ViewBag.Relax["std"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["std"]["global_leaderboard_rank"]; } (Global)</td>
+                                        <td class="text-right">#@{ if (ViewBag.Relax["std"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["std"]["country_leaderboard_rank"]; } (@ViewBag.Relax["country"])</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Количество игр</td>
+                                        <td class="text-right">@ViewBag.Relax["std"]["playcount"]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Время в игре</td>
+                                        <td class="text-right">@{ var time_std_relax = Convert.ToUInt64(ViewBag.Relax["std"]["play_time"]); var hours_std_relax = time_std_relax / 3600; var min_std_relax = time_std_relax % 3600 / 60; } @{@hours_std_relax}ч @{@min_std_relax}м</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">@playstyle</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>Всего очков</td>
+                                        <td class="text-right">@ViewBag.Relax["std"]["total_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Рейтинговых очков</td>
+                                        <td class="text-right">@ViewBag.Relax["std"]["ranked_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Всего попаданий</td>
+                                        <td class="text-right">@ViewBag.Relax["std"]["total_hits"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Реплеев просмотрено</td>
+                                        <td class="text-right">@ViewBag.Relax["std"]["replays_watched"]</td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
+
+                          <div id="profile-table-taiko-relax">
+                            <div>
+                              <table style="margin-right: auto">
+                                  <tr class="bold-text">
+                                        <td>@ViewBag.Relax["taiko"]["pp"]pp</td>
+                                        <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Relax["taiko"]["accuracy"]), 2)%</td>
+                                    </tr>
+                                    <tr class="bold-text">
+                                        <td>#@{ if (ViewBag.Relax["taiko"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["taiko"]["global_leaderboard_rank"]; } (Global)</td>
+                                        <td class="text-right">#@{ if (ViewBag.Relax["taiko"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["taiko"]["country_leaderboard_rank"]; } (@ViewBag.Relax["country"])</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Количество игр</td>
+                                        <td class="text-right">@ViewBag.Relax["taiko"]["playcount"]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Время в игре</td>
+                                        <td class="text-right">@{ var time_taiko_relax = Convert.ToUInt64(ViewBag.Relax["taiko"]["play_time"]); var hours_taiko_relax = time_taiko_relax / 3600; var min_taiko_relax = time_taiko_relax % 3600 / 60; } @{@hours_taiko_relax}ч @{@min_taiko_relax}м</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">@playstyle</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>Всего очков</td>
+                                        <td class="text-right">@ViewBag.Relax["taiko"]["total_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Рейтинговых очков</td>
+                                        <td class="text-right">@ViewBag.Relax["taiko"]["ranked_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Всего попаданий</td>
+                                        <td class="text-right">@ViewBag.Relax["taiko"]["total_hits"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Реплеев просмотрено</td>
+                                        <td class="text-right">@ViewBag.Relax["taiko"]["replays_watched"]</td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
+
+                          <div id="profile-table-ctb-relax">
+                            <div>
+                              <table style="margin-right: auto">
+                                  <tr class="bold-text">
+                                        <td>@ViewBag.Relax["ctb"]["pp"]pp</td>
+                                        <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Relax["ctb"]["accuracy"]), 2)%</td>
+                                    </tr>
+                                    <tr class="bold-text">
+                                        <td>#@{ if (ViewBag.Relax["ctb"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["ctb"]["global_leaderboard_rank"]; } (Global)</td>
+                                        <td class="text-right">#@{ if (ViewBag.Relax["ctb"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["ctb"]["country_leaderboard_rank"]; } (@ViewBag.Relax["country"])</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Количество игр</td>
+                                        <td class="text-right">@ViewBag.Relax["ctb"]["playcount"]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Время в игре</td>
+                                        <td class="text-right">@{ var time_ctb_relax = Convert.ToUInt64(ViewBag.Relax["ctb"]["play_time"]); var hours_ctb_relax = time_ctb_relax / 3600; var min_ctb_relax = time_ctb_relax % 3600 / 60; } @{@hours_ctb_relax}ч @{@min_ctb_relax}м</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">@playstyle</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr>
+                                        <td>Всего очков</td>
+                                        <td class="text-right">@ViewBag.Relax["ctb"]["total_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Рейтинговых очков</td>
+                                        <td class="text-right">@ViewBag.Relax["ctb"]["ranked_score"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Всего попаданий</td>
+                                        <td class="text-right">@ViewBag.Relax["ctb"]["total_hits"].ToString("#,#", culture)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Реплеев просмотрено</td>
+                                        <td class="text-right">@ViewBag.Relax["ctb"]["replays_watched"]</td>
+                                    </tr>
+                                    <tr>
+                                    </tr>
+                                </table>
+                            </div>
+                          </div>
+
+                          <div id="profile-main-tables-mania-relax">
+                          </div>
+
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-levels">
+
+                <div id="profile-level-std">
+                  <div>
+
+                    <!-- profile-grades here -->
+
+                    <div id="profile-level">
+                      <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["std"]["level"] % 1 * 100)% 110%">
+                          <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["std"]["level"] % 1 * 100)%</b>
+                      </div>
+                      <div class="progress-bar-percent">
+                          Level @Math.Truncate((decimal)ViewBag.Data["std"]["level"])
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="profile-level-taiko">
+                  <div>
+
+                    <!-- profile-grades here -->
+
+                    <div id="profile-level">
+                      <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["taiko"]["level"] % 1 * 100)% 110%">
+                          <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["taiko"]["level"] % 1 * 100)%</b>
+                      </div>
+                      <div class="progress-bar-percent">
+                          Level @Math.Truncate((decimal)ViewBag.Data["taiko"]["level"])
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="profile-level-ctb">
+                  <div>
+
+                    <!-- profile-grades here -->
+
+                    <div id="profile-level">
+                      <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["ctb"]["level"] % 1 * 100)% 110%">
+                          <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["ctb"]["level"] % 1 * 100)%</b>
+                      </div>
+                      <div class="progress-bar-percent">
+                          Level @Math.Truncate((decimal)ViewBag.Data["ctb"]["level"])
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="profile-level-mania">
+                  <div>
+
+                    <!-- profile-grades here -->
+
+                    <div id="profile-level">
+                      <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["mania"]["level"] % 1 * 100)% 110%">
+                          <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["mania"]["level"] % 1 * 100)%</b>
+                      </div>
+                      <div class="progress-bar-percent">
+                          Level @Math.Truncate((decimal)ViewBag.Data["mania"]["level"])
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+                <div id="profile-level-std-relax">
+                  <div>
+
+                    <!-- profile-grades here -->
+
+                    <div id="profile-level">
+                      <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Relax["std"]["level"] % 1 * 100)% 110%">
+                          <b class="white-text">@Math.Truncate((decimal)ViewBag.Relax["std"]["level"] % 1 * 100)%</b>
+                      </div>
+                      <div class="progress-bar-percent">
+                          Level @Math.Truncate((decimal)ViewBag.Relax["std"]["level"])
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="profile-level-taiko-relax">
+                  <div>
+
+                    <!-- profile-grades here -->
+
+                    <div id="profile-level">
+                      <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Relax["taiko"]["level"] % 1 * 100)% 110%">
+                          <b class="white-text">@Math.Truncate((decimal)ViewBag.Relax["taiko"]["level"] % 1 * 100)%</b>
+                      </div>
+                      <div class="progress-bar-percent">
+                          Level @Math.Truncate((decimal)ViewBag.Relax["taiko"]["level"])
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="profile-level-ctb-relax">
+                  <div>
+
+                    <!-- profile-grades here -->
+
+                    <div id="profile-level">
+                      <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Relax["ctb"]["level"] % 1 * 100)% 110%">
+                          <b class="white-text">@Math.Truncate((decimal)ViewBag.Relax["ctb"]["level"] % 1 * 100)%</b>
+                      </div>
+                      <div class="progress-bar-percent">
+                          Level @Math.Truncate((decimal)ViewBag.Relax["ctb"]["level"])
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="profile-level-mania-relax">
+                </div>
+
+            </div>
+
+            <div class="profile-separator">
+            </div>
+
+            <div class="mode-selector-panel">
+              <div class="mode-selector-single">
+                <li>Обо мне!</li>
+              </div>
+            </div>
+
+            <div class="base-container">
+                <div>@ViewBag.Userpage</div>
+            </div>
+
+            <div class="profile-separator">
+            </div>
+
+            <div class="mode-selector-panel">
+              <div>
+                <li id="profile-scores-best" onclick="profileMaps(0)">Лучшие скоры</li>
+                <li id="profile-scores-last" onclick="profileMaps(1)">Недавние скоры</li>
+              </div>
+            </div>
+
+            <div class="base-container">
+                <div id="scores-data"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
