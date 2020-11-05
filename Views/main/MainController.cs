@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
@@ -119,12 +120,10 @@ namespace Himitsu.Pages
             return View("error404");
         }
 
-        public FileResult Switcher()
+        public IActionResult Switcher()
         {
-            string file_path = "~\\resources\\HimitsuSwitcher.exe";
-            string file_type = "application/octet-stream";
-            string file_name = "HimitsuSwitcher.exe";
-            return File(file_path, file_type, file_name);
+            string file_path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "resources", "HimitsuSwitcher.exe");
+            return PhysicalFile(file_path, System.Net.Mime.MediaTypeNames.Application.Octet, "HimitsuSwitcher.exe");
         }
     }
 }
