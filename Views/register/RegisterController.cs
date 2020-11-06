@@ -55,7 +55,7 @@ namespace Himitsu.Views.register
                     return View("error403");
                 }
             }
-            else { reader.Close(); return View("error500"); }
+            else { reader.Close(); HttpContext.Response.StatusCode = 500; return View("error500"); }
             reader.Close();
             return View();
         }
@@ -67,11 +67,12 @@ namespace Himitsu.Views.register
         [HttpPost]
         public IActionResult Register(string username, string mail, string password)
         {
+
             string[] forbiddenUsernames = new string[] { "peppy", "rrtyui", "cookiezi", "azer", "loctav", "banchobot", "happystick", "doomsday", "sharingan33", "andrea", "cptnxn",
                     "reimu-desu", "hvick225", "_index", "my aim sucks", "kynan", "rafis", "sayonara-bye", "thelewa", "wubwoofwolf", "millhioref", "tom94", "tillerino", "clsw",
                     "spectator", "exgon", "axarious", "angelsim", "recia", "nara", "emperorpenguin83", "bikko", "xilver", "vettel", "kuu01", "_yu68", "tasuke912", "dusk",
                     "ttobas", "velperk", "jakads", "jhlee0133", "abcdullah", "yuko-", "entozer", "hdhr", "ekoro", "snowwhite", "osuplayer111", "musty", "nero", "elysion",
-                    "ztrot", "koreapenguin", "fort", "asphyxia", "niko", "shigetora", "whitecat", "fokabot", "himitsu", "nebula"};
+                    "ztrot", "koreapenguin", "fort", "asphyxia", "niko", "shigetora", "whitecat", "fokabot", "himitsu", "nebula", "howl", "nyo", "angelwar", "mm00"};
             
             if (!registerEnabled())
             {

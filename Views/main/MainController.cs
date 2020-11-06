@@ -2,10 +2,12 @@
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using MySql.Data.MySqlClient;
 
 namespace Himitsu.Pages
 {
+    [Route("")]
     public class mainController : Controller
     {
         private MySqlDataReader reader;
@@ -25,16 +27,20 @@ namespace Himitsu.Pages
             public ulong pRaw { get; set; }
             public UserPrivileges Privileges { get; set; }
         }
+
+        [HttpGet("leaderboard")]
         public IActionResult Leaderboard()
         {
             return View();
         }
+
+        [HttpGet("login")]
         public IActionResult Login()
         {
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public IActionResult Login(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -76,7 +82,7 @@ namespace Himitsu.Pages
             {
                 Utility.setCookie(_sql, HttpContext, data.ID);
                 s.CommitAsync();
-                return RedirectToAction("Verify", "register");
+                return RedirectToAction("Verify", "register", new { u = data.ID });
             }
 
             if (UserPrivileges.Banned == data.Privileges)
@@ -87,15 +93,14 @@ namespace Himitsu.Pages
             Utility.setCookie(_sql, HttpContext, data.ID);
             s.SetInt32("userid", data.ID);
             s.SetString("pw", Utility.CreateMD5(data.Password).ToLowerInvariant());
-            s.SetString("logout", Utility.GenerateString());
 
-            afterLogin(data.ID, s, data.Country);
+            afterLogin(data.ID, HttpContext, data.Country);
             return RedirectToAction("Main", "main");
         }
-        public void afterLogin(int user_id, ISession sess, string country)
+        public void afterLogin(int user_id, HttpContext ctx, string country)
         {
             var s = GenerateToken(user_id);
-            sess.SetString("token", s);
+            Utility.addCookie(ctx, "rt", Utility.CreateMD5(s).ToLowerInvariant(), 24 * 30 * 1);
             if (country == "XX")
                 Utility.setCountry(_sql, HttpContext, user_id);
             Utility.LogIP(_sql, HttpContext, user_id);
@@ -103,27 +108,49 @@ namespace Himitsu.Pages
         public string GenerateToken(int user_id)
         {
             var rs = Utility.GenerateString(32);
-            var cmd = new MySqlCommand("INSERT INTO tokens(user, privileges, description, token, private) VALUES(@id, '0', @ip, @md5, '1')", _sql);
+            var cmd = new MySqlCommand("INSERT INTO tokens(user, privileges, description, token, private, last_updated) VALUES(@id, '0', @ip, @md5, '1', @time)", _sql);
             cmd.Parameters.AddWithValue("@id", user_id);
             cmd.Parameters.AddWithValue("@ip", HttpContext.Connection.RemoteIpAddress);
             cmd.Parameters.AddWithValue("@md5", Utility.CreateMD5(rs).ToLowerInvariant());
+            cmd.Parameters.AddWithValue("@time", DateTime.UnixEpoch);
             cmd.ExecuteNonQuery();
             return rs;
         }
+
+        [HttpGet("/")]
         public IActionResult Main()
         {
             return View();
         }
 
-        public IActionResult Error404()
-        {
-            return View("error404");
-        }
-
+        [HttpGet("switcher")]
         public IActionResult Switcher()
         {
             string file_path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "resources", "HimitsuSwitcher.exe");
             return PhysicalFile(file_path, System.Net.Mime.MediaTypeNames.Application.Octet, "HimitsuSwitcher.exe");
+        }
+
+        [HttpGet("logout")]
+        public IActionResult Logout()
+        {
+            var ctx = HttpContext.Session;
+            ctx.Clear();
+            ctx.SetInt32("login", 0);
+            ctx.CommitAsync();
+            return RedirectToAction("Main", "main");
+        }
+
+        [HttpGet("about")]
+        public IActionResult About()
+        {
+            return View("error404");
+        }
+
+        [HttpGet("{*.}")]
+        public IActionResult Error404()
+        {
+            HttpContext.Response.StatusCode = 404;
+            return View("error404");
         }
     }
 }

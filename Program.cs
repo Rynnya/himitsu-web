@@ -3,11 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using SshNet.Security.Cryptography;
@@ -47,6 +43,12 @@ namespace Himitsu
     }
     public class Utility
     {
+        public static bool EscapeDirectories(HttpRequest req)
+        {
+            if (req.Path.StartsWithSegments("/resources") || req.Path.StartsWithSegments("/css") || req.Path.StartsWithSegments("/js") || req.Path.StartsWithSegments("/favicon.ico"))
+                return false;
+            return true;
+        }
         public static void setCountry(MySqlConnection sql, HttpContext req, int user_id)
         {
             var url = $"https://ip.zxq.co/{req.Connection.RemoteIpAddress}/country";
@@ -59,7 +61,11 @@ namespace Himitsu
             cmd.Parameters.AddWithValue("@user_id", user_id);
             cmd.ExecuteNonQuery();
         }
-        public static void LogIP(MySqlConnection sql, HttpContext req, int user_id) => new MySqlCommand($"INSERT INTO ip_user (userid, ip, occurencies) VALUES ({user_id}, {req.Connection.RemoteIpAddress}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", sql).ExecuteNonQuery();
+        public static void LogIP(MySqlConnection sql, HttpContext req, int user_id)
+        {
+            try { new MySqlCommand($"INSERT INTO ip_user (userid, ip, occurencies) VALUES ({user_id}, {req.Connection.RemoteIpAddress}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", sql).ExecuteNonQuery(); }
+            catch { Console.WriteLine($"WARN | 500 | Ќе удалось получить IP адрес пользовател€ {user_id}"); } // we cannot resolve his ip, so we just skip this moment
+        }
         public static string CreateMD5(string input)
         {
             // Use input string to calculate MD5 hash
@@ -87,7 +93,7 @@ namespace Himitsu
                 token = reader["token"].ToString();
                 if (token != null)
                 {
-                    addCookie(req, "y", token);
+                    addCookie(req, "y", token, 24 * 30 * 6);
                     reader.Close();
                     return;
                 }
@@ -109,17 +115,17 @@ namespace Himitsu
                     cmd.Parameters.AddWithValue("@userid", user_id);
                     cmd.Parameters.AddWithValue("@token", token);
                     cmd.ExecuteNonQuery();
-                    addCookie(req, "y", token);
+                    addCookie(req, "y", token, 24 * 30 * 6);
                 }
             }    
             else
                 throw new Exception("Cannot read data from DB.");
         }
-        private static void addCookie(HttpContext req, string name, string data)
+        public static void addCookie(HttpContext req, string name, string data, int time)
         {
             var cookieOptions = new CookieOptions
             {
-                Expires = DateTime.Now.AddHours(24 * 30 * 6)
+                Expires = DateTime.Now.AddHours(time)
             };
             req.Response.Cookies.Append(name, data, cookieOptions);
         }
