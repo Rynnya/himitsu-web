@@ -1,22 +1,20 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using MySql.Data.MySqlClient;
+using SqlKata.Execution;
 
 namespace Himitsu.Pages
 {
     [Route("")]
     public class mainController : Controller
     {
-        private MySqlDataReader reader;
-        private MySqlCommand cmd;
-        private readonly MySqlConnection _sql;
+        private readonly QueryFactory _db;
 
-        public mainController(MySqlConnection sql)
+        public mainController(QueryFactory db)
         {
-            _sql = sql;
+            _db = db;
         }
         public struct Data
         {
@@ -24,7 +22,7 @@ namespace Himitsu.Pages
             public string Username { get; set; }
             public string Password { get; set; }
             public string Country { get; set; }
-            public ulong pRaw { get; set; }
+            public long pRaw { get; set; }
             public UserPrivileges Privileges { get; set; }
         }
 
@@ -51,19 +49,13 @@ namespace Himitsu.Pages
 
             var data = new Data();
             var user_safe = username.ToString().ToLowerInvariant().Replace(" ", "_");
-            cmd = new MySqlCommand("SELECT u.id, u.password_md5, u.username, s.country, u.privileges FROM users u LEFT JOIN users_stats s ON s.id = u.id WHERE u.username_safe = @user_safe LIMIT 1", _sql);
-            cmd.Parameters.AddWithValue("@user_safe", user_safe);
-            reader = cmd.ExecuteReader();
-            if (reader.Read())
-            {
-                data.ID = Convert.ToInt32(reader["id"]);
-                data.Username = reader["username"].ToString();
-                data.Password = reader["password_md5"].ToString();
-                data.Country = reader["country"].ToString();
-                data.pRaw = Convert.ToUInt64(reader["privileges"]);
-                data.Privileges = (UserPrivileges)data.pRaw;
-                reader.Close();
-            }
+            var user_data = _db.Select("SELECT u.id, u.password_md5, u.username, s.country, u.privileges FROM users u LEFT JOIN users_stats s ON s.id = u.id WHERE u.username_safe = @user_safe LIMIT 1", new { user_safe }).First();
+            data.ID = user_data.id;
+            data.Username = user_data.username;
+            data.Password = user_data.password_md5;
+            data.Country = user_data.country;
+            data.pRaw = user_data.privileges;
+            data.Privileges = (UserPrivileges)data.pRaw;
 
             if (data.Username == null)
             {
@@ -80,7 +72,7 @@ namespace Himitsu.Pages
             var s = HttpContext.Session;
             if (UserPrivileges.Pending == data.Privileges)
             {
-                Utility.setCookie(_sql, HttpContext, data.ID);
+                Utility.setCookie(_db, HttpContext, data.ID);
                 s.CommitAsync();
                 return RedirectToAction("Verify", "register", new { u = data.ID });
             }
@@ -90,7 +82,7 @@ namespace Himitsu.Pages
                 ViewBag.Error = "Ваш аккаунт был заблокирован/забанен. Обратитесь к Администрации.";
                 return View("error403");
             }
-            Utility.setCookie(_sql, HttpContext, data.ID);
+            Utility.setCookie(_db, HttpContext, data.ID);
             s.SetInt32("userid", data.ID);
             s.SetString("pw", Utility.CreateMD5(data.Password).ToLowerInvariant());
 
@@ -102,18 +94,13 @@ namespace Himitsu.Pages
             var s = GenerateToken(user_id);
             Utility.addCookie(ctx, "rt", Utility.CreateMD5(s).ToLowerInvariant(), 24 * 30 * 1);
             if (country == "XX")
-                Utility.setCountry(_sql, HttpContext, user_id);
-            Utility.LogIP(_sql, HttpContext, user_id);
+                Utility.setCountry(_db, HttpContext, user_id);
+            Utility.LogIP(_db, HttpContext, user_id);
         }
         public string GenerateToken(int user_id)
         {
             var rs = Utility.GenerateString(32);
-            var cmd = new MySqlCommand("INSERT INTO tokens(user, privileges, description, token, private, last_updated) VALUES(@id, '0', @ip, @md5, '1', @time)", _sql);
-            cmd.Parameters.AddWithValue("@id", user_id);
-            cmd.Parameters.AddWithValue("@ip", HttpContext.Connection.RemoteIpAddress);
-            cmd.Parameters.AddWithValue("@md5", Utility.CreateMD5(rs).ToLowerInvariant());
-            cmd.Parameters.AddWithValue("@time", DateTime.UnixEpoch);
-            cmd.ExecuteNonQuery();
+            _db.Query("tokens").Insert(new { user = user_id, privileges = '0', description = HttpContext.Connection.RemoteIpAddress.ToString(), token = Utility.CreateMD5(rs).ToLowerInvariant(), last_updated = DateTime.UnixEpoch });
             return rs;
         }
 

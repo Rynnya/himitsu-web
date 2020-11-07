@@ -2,6 +2,7 @@ secret.json
 # Created by https://www.gitignore.io/api/visualstudio,visualstudiocode,windows,linux,macos
 
 ### VisualStudioCode ###
+.vs/*
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

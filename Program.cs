@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-using MySql.Data.MySqlClient;
+using SqlKata.Execution;
 using SshNet.Security.Cryptography;
 
 namespace Himitsu
@@ -49,22 +49,19 @@ namespace Himitsu
                 return false;
             return true;
         }
-        public static void setCountry(MySqlConnection sql, HttpContext req, int user_id)
+        public static void setCountry(QueryFactory db, HttpContext req, int user_id)
         {
             var url = $"https://ip.zxq.co/{req.Connection.RemoteIpAddress}/country";
             var raw = WebRequest.Create(url);
             var stream = new StreamReader(raw.GetResponse().GetResponseStream()).ReadToEnd();
             if (stream == "" || stream.Length != 2)
                 return;
-            var cmd = new MySqlCommand("UPDATE users_stats SET country = @stream WHERE id = @user_id", sql);
-            cmd.Parameters.AddWithValue("@stream", stream);
-            cmd.Parameters.AddWithValue("@user_id", user_id);
-            cmd.ExecuteNonQuery();
+            db.Query("users_stats").Update(new { country = stream.ToString(), id = user_id });
         }
-        public static void LogIP(MySqlConnection sql, HttpContext req, int user_id)
+        public static void LogIP(QueryFactory db, HttpContext req, int user_id)
         {
-            try { new MySqlCommand($"INSERT INTO ip_user (userid, ip, occurencies) VALUES ({user_id}, {req.Connection.RemoteIpAddress}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", sql).ExecuteNonQuery(); }
-            catch { Console.WriteLine($"WARN | 500 | Ќе удалось получить IP адрес пользовател€ {user_id}"); } // we cannot resolve his ip, so we just skip this moment
+            try { db.Statement("INSERT INTO ip_user (userid, ip, occurencies) VALUES ({@userid}, {@ip}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", new { userid = user_id, ip = req.Connection.RemoteIpAddress }); }
+            catch { Console.WriteLine($"WARN | 500 | Ќе удалось получить IP адрес пользовател€ {user_id}"); }
         }
         public static string CreateMD5(string input)
         {
@@ -83,43 +80,26 @@ namespace Himitsu
                 return sb.ToString();
             }
         }
-        public static void setCookie(MySqlConnection sql, HttpContext req, int user_id)
+        public static void setCookie(QueryFactory db, HttpContext req, int user_id)
         {
-            string token;
-            var cmd = new MySqlCommand($"SELECT token FROM identity_tokens WHERE userid = {user_id} LIMIT 1", sql);
-            var reader = cmd.ExecuteReader();
-            if (reader.Read())
+            var token = db.Query("identity_tokens").Select("token").Where("userid", user_id).First().token;
+            if (token != null)
             {
-                token = reader["token"].ToString();
-                if (token != null)
-                {
-                    addCookie(req, "y", token, 24 * 30 * 6);
-                    reader.Close();
-                    return;
-                }
-                else
-                {
-                    reader.Close();
-                    while (true)
-                    {
-                        token = SHA256.Create().ComputeHash(Encoding.GetEncoding("UTF-8").GetBytes(GenerateString(30))).ToString();
-                        reader = new MySqlCommand($"SELECT 1 FROM identity_tokens WHERE token = {token} LIMIT 1", sql).ExecuteReader();
-                        if (reader.Read() && reader["1"] == null)
-                        {
-                            reader.Close();
-                            break;
-                        }
-                        reader.Close();
-                    }
-                    cmd = new MySqlCommand("INSERT INTO identity_tokens(userid, token) VALUES (@userid, @token)", sql);
-                    cmd.Parameters.AddWithValue("@userid", user_id);
-                    cmd.Parameters.AddWithValue("@token", token);
-                    cmd.ExecuteNonQuery();
-                    addCookie(req, "y", token, 24 * 30 * 6);
-                }
-            }    
+                addCookie(req, "y", token, 24 * 30 * 6);
+                return;
+            }
             else
-                throw new Exception("Cannot read data from DB.");
+            {
+                while (true)
+                {
+                    token = SHA256.Create().ComputeHash(Encoding.GetEncoding("UTF-8").GetBytes(GenerateString(30))).ToString();
+                    var check = db.Query("identity_tokens").Select("token").Where("token", token).First().token;
+                    if (check == null)
+                        break;
+                }
+                db.Query("identity_tokens").Insert(new { userid = user_id, token });
+                addCookie(req, "y", token, 24 * 30 * 6);
+            }    
         }
         public static void addCookie(HttpContext req, string name, string data, int time)
         {

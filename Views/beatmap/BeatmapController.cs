@@ -12,6 +12,7 @@ using Microsoft.JSInterop;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SqlKata.Execution;
 
 namespace Himitsu.Views.beatmap
 {
@@ -38,35 +39,24 @@ namespace Himitsu.Views.beatmap
     {
         public HttpClient http = new HttpClient();
         public string data;
+        private readonly QueryFactory _db;
 
-        private MySqlDataReader reader;
-        private MySqlCommand cmd;
-        private readonly MySqlConnection _sql;
-
-        public beatmapController(MySqlConnection sql)
+        public beatmapController(QueryFactory db)
         {
-            _sql = sql;
+            _db = db;
         }
         public IActionResult Beatmap(ulong? id)
         {
-            cmd = new MySqlCommand("SELECT ranked FROM nebulapi.beatmaps WHERE beatmap_id = @id;", _sql);
-            cmd.Parameters.AddWithValue("@id", id);
-            reader = cmd.ExecuteReader();
-            if (reader.Read())
-            {
-                ViewBag.Status = reader["ranked"];
-                reader.Close();
-            }
-            else
-            {
-                reader.Close();
-                ViewBag.Status = "0";
-            }
             if (string.IsNullOrEmpty(id.ToString())) return View("error404");
+            try { ViewBag.Status = (int)_db.Query("beatmaps").Where("beatmap_id", id).Select("ranked").First().ranked; }
+            catch { Console.WriteLine("WARN | ERR | MySQL panic! Beatmap ranking is null!"); ViewBag.Status = null; }
+
             try { data = http.GetStringAsync($"http://storage.ripple.moe/api/b/{id}").Result; } catch { return View("error404"); }
             ViewBag.BeatmapID = JToken.Parse(data)["BeatmapID"];
+
             try { data = http.GetStringAsync($"http://storage.ripple.moe/api/s/{JToken.Parse(data)["ParentSetID"]}").Result; } catch { return View("error404"); }
             var token = JToken.Parse(data);
+
             ViewBag.HasVideo = Convert.ToBoolean(token["HasVideo"]);
             ViewBag.BeatmapSetID = token["SetID"];
             ViewBag.Title = token["Title"];

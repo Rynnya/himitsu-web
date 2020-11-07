@@ -2,19 +2,17 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+using SqlKata.Execution;
 
 namespace Himitsu.Views.register
 {
     public class registerController : Controller
     {
-        private MySqlDataReader reader;
-        private MySqlCommand cmd;
-        private readonly MySqlConnection _sql;
+        private readonly QueryFactory _db;
 
-        public registerController(MySqlConnection sql)
+        public registerController(QueryFactory db)
         {
-            _sql = sql;
+            _db = db;
         }
         public IActionResult Verify(int? u)
         {
@@ -30,33 +28,23 @@ namespace Himitsu.Views.register
                 ViewBag.Error = "Ты здесь уже был.";
                 return View("error403");
             }
-
-            cmd = new MySqlCommand("SELECT 1 FROM identity_tokens WHERE token = @token AND userid = @user_id", _sql);
-            cmd.Parameters.AddWithValue("@token", Request.Cookies["y"]);
-            cmd.Parameters.AddWithValue("@user_id", u);
-            reader = cmd.ExecuteReader();
-            if (!(reader.Read() && reader["1"] != null))
+            string check;
+            try { check = _db.Query("identity_tokens").SelectRaw("SELECT 1 FROM identity_tokens WHERE token = @token AND userid = @user_id", new { token = Request.Cookies["y"], user_id = u }).First(); }
+            catch { Console.WriteLine("WARN | ERR | MySQL panic! Cannot resolve identify token, trying to redirect to this action."); return RedirectToAction("Verify", new { u }); }
+            if (check != null)
             {
-                reader.Close();
                 ViewBag.Error = "Зачем ты это делаешь?";
                 return View("error403");
             }
-            reader.Close();
 
-            cmd = new MySqlCommand("SELECT privileges FROM users WHERE id = @user_id", _sql);
-            cmd.Parameters.AddWithValue("@user_id", u);
-            reader = cmd.ExecuteReader();
-            if (reader.Read())
+            try { check = _db.Query("users").Select("privileges").Where("id", u).First(); }
+            catch { Console.WriteLine("WARN | ERR | MySQL panic! Cannot resolve user permissions, trying to redirect to this action."); return RedirectToAction("Verify", new { u }); }
+            if (check != UserPrivileges.Pending.ToString())
             {
-                if (reader["privileges"].ToString() != UserPrivileges.Pending.ToString())
-                {
-                    reader.Close();
-                    ViewBag.Error = "Что ты тут забыл?";
-                    return View("error403");
-                }
+                ViewBag.Error = "Что ты тут забыл?";
+                return View("error403");
             }
-            else { reader.Close(); HttpContext.Response.StatusCode = 500; return View("error500"); }
-            reader.Close();
+
             return View();
         }
         public IActionResult Register()
@@ -101,81 +89,42 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
 
-            cmd = new MySqlCommand("SELECT 1 FROM users WHERE username_safe = @username", _sql);
-            cmd.Parameters.AddWithValue("@username", username.ToString().ToLowerInvariant().Replace(" ", "_"));
-            reader = cmd.ExecuteReader();
-            if (reader.Read())
-                if (reader["1"] != null)
-                {
-                    ViewBag.Error = "Такой пользователь уже существует!";
-                    reader.Close();
-                    return View("error403");
-                }
-            reader.Close();
+            string check;
+            check = _db.Query("users").Select("1").Where("username_safe", username.ToString().ToLowerInvariant().Replace(" ", "_")).First();
+            if (check != null)
+            {
+                ViewBag.Error = "Такой пользователь уже существует!";
+                return View("error403");
+            }
 
-            cmd = new MySqlCommand("SELECT 1 FROM users WHERE email = @email", _sql);
-            cmd.Parameters.AddWithValue("@email", mail);
-            reader = cmd.ExecuteReader();
-            if (reader.Read())
-                if (reader["1"] != null)
-                {
-                    ViewBag.Error = "Эта почта уже занята!";
-                    reader.Close();
-                    return View("error403");
-                }
-            reader.Close();
+            check = _db.Query("users").Select("1").Where("email", mail).First();
+            if (check != null)
+            {
+                ViewBag.Error = "Эта почта уже занята!";
+                return View("error403");
+            }
 
             var hash = BCrypt.Net.BCrypt.HashPassword(Utility.CreateMD5(password).ToLowerInvariant(), 10);
 
-            cmd = new MySqlCommand("INSERT INTO users(username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version) VALUES( @username, @username_safe, @hash, '', @email, @date, @privileges, 2); ", _sql);
-            cmd.Parameters.AddWithValue("@username", username);
-            cmd.Parameters.AddWithValue("@username_safe", username.ToString().ToLowerInvariant());
-            cmd.Parameters.AddWithValue("@hash", hash);
-            cmd.Parameters.AddWithValue("@email", mail);
-            cmd.Parameters.AddWithValue("@date", DateTime.UnixEpoch);
-            cmd.Parameters.AddWithValue("@privileges", UserPrivileges.Pending);
-            cmd.ExecuteNonQuery();
+            _db.Query("users").Insert(new { username, username_safe = username.ToString().ToLowerInvariant(), hash, email = mail, date = DateTime.UnixEpoch, privileges = UserPrivileges.Pending });
 
             int user_id = 0;
-            cmd = new MySqlCommand($"SELECT id FROM users WHERE email = @mail AND password_md5 = @hash");
-            cmd.Parameters.AddWithValue("@mail", mail);
-            cmd.Parameters.AddWithValue("@hash", hash);
-            reader = cmd.ExecuteReader();
-            if (reader.Read())
-            {
-                user_id = Convert.ToInt32(reader["id"]);
-                reader.Close();
+            var data = _db.Query("users").Select("id").Where("email", mail).Where("password_md5", hash).First();
+            user_id = Convert.ToInt32(data.id);
 
-                cmd = new MySqlCommand("INSERT INTO `users_stats`(id, username, user_color, user_style, ranked_score_std, playcount_std, total_score_std, ranked_score_taiko, playcount_taiko, total_score_taiko, ranked_score_ctb, playcount_ctb, total_score_ctb, ranked_score_mania, playcount_mania, total_score_mania) VALUES (@id, @username, 'black', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)", _sql);
-                cmd.Parameters.AddWithValue("@id", user_id);
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.ExecuteNonQuery();
+            _db.Query("users_stats").Insert(new { id = user_id, username, user_color = "black", user_style = "", ranked_score_std = 0, playcount_std = 0, total_score_std = 0, ranked_score_taiko = 0, playcount_taiko = 0, total_score_taiko = 0, ranked_score_ctb = 0, playcount_ctb = 0, total_score_ctb = 0, ranked_score_mania = 0, playcount_mania = 0, total_score_mania = 0 });
+            _db.Query("users_stats_relax").Insert(new { id = user_id });
+            _db.Query("users_preferences").Insert(new { id = user_id });
 
-                cmd = new MySqlCommand("INSERT INTO `users_stats_relax` (id) VALUES (@id)", _sql);
-                cmd.Parameters.AddWithValue("@id", user_id);
-                cmd.ExecuteNonQuery();
-
-                cmd = new MySqlCommand("INSERT INTO `users_preferences` (id) VALUES (@id)", _sql);
-                cmd.Parameters.AddWithValue("@id", user_id);
-                cmd.ExecuteNonQuery();
-
-                Utility.setCookie(_sql, HttpContext, user_id);
-                Utility.LogIP(_sql, HttpContext, user_id);
-                HttpContext.Session.CommitAsync();
-            }
+            Utility.setCookie(_db, HttpContext, user_id);
+            Utility.LogIP(_db, HttpContext, user_id);
+            HttpContext.Session.CommitAsync();
             return RedirectToAction("Verify", "register", new { u = user_id });
         }
         private bool registerEnabled()
         {
-            reader = new MySqlCommand("SELECT value_int FROM system_settings WHERE name = 'registrations_enabled'", _sql).ExecuteReader();
-            if (reader.Read())
-            {
-                var done = reader["value_int"].ToString();
-                reader.Close();
-                return Utility.StringToBool(done);
-            }
-            reader.Close();
-            return false;
+            var check = _db.Query("system_settings").Select("value_int").Where("name", "registrations_enabled").First();
+            return Utility.StringToBool(check.value_int);
         }
     }
 }

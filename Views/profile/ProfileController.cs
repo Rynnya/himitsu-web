@@ -1,23 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using Q101.BbCodeNetCore;
 using Microsoft.AspNetCore.Html;
+using SqlKata.Execution;
+using System.Linq;
+using System;
 
 namespace Himitsu.Pages
 {
     public class profileController : Controller
     {
-        private readonly MySqlConnection _sql;
-        private MySqlDataReader reader;
-        private MySqlCommand cmd;
-        public profileController(MySqlConnection sql)
+        private readonly QueryFactory _db;
+        public profileController(QueryFactory db)
         {
-            _sql = sql;
+            _db = db;
         }
 
-        public ViewResult Profile(int? id)
+        public IActionResult Profile(int? id)
         {
             try
             {
@@ -25,17 +25,24 @@ namespace Himitsu.Pages
                 {
                     return View("error404");
                 }
-                cmd = new MySqlCommand("SELECT username FROM users WHERE id = @id LIMIT 1", _sql);
-                cmd.Parameters.AddWithValue("@id", id);
-                reader = cmd.ExecuteReader();
-                if (reader.Read() && reader["username"] == null)
-                {
-                    reader.Close();
+                string user = null;
+                try { user = _db.Query("users").Select("username").Where("id", id).First().username; }
+                catch {
+                    if (HttpContext.Request.Cookies["redirect"] == null)
+                    {
+                        Console.WriteLine("WARN | ERR | MySQL panic! Username is null, so we return redirect to avoid error");
+                        Utility.addCookie(HttpContext, "redirect", "1", 1);
+                        return RedirectToAction("Profile", new { id });
+                    }
+                    HttpContext.Response.Cookies.Delete("redirect");
                     return View("error404");
                 }
-                reader.Close();
+                if (user == null)
+                    return View("error404");
                 var http = new HttpClient();
-                var data = http.GetStringAsync($"http://192.168.100.11:40001/api/v1/users/full?id={id}").Result;
+                string data;
+                try { data = http.GetStringAsync($"http://192.168.100.11:40001/api/v1/users/full?id={id}").Result; }
+                catch { return View("error404"); }
                 var json = JToken.Parse(data);
                 http = new HttpClient();
                 data = http.GetStringAsync($"http://192.168.100.11:40001/api/v1/users/full?id={id}&relax=1").Result;

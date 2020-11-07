@@ -10,6 +10,8 @@ using MySql.Data.MySqlClient;
 using Himitsu.Variable;
 using System.Linq;
 using System.Threading.Tasks;
+using SqlKata.Compilers;
+using SqlKata.Execution;
 
 namespace Himitsu
 {
@@ -41,12 +43,13 @@ namespace Himitsu
             services.AddMvc();
             var _sql = new MySqlConnection(var.Connection);
             _sql.Open();
-            services.AddSingleton(_sql);
+            var db = new QueryFactory(_sql, new MySqlCompiler());
+            services.AddSingleton(db);
             services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, MySqlConnection sql)
+        public void Configure(IApplicationBuilder app, QueryFactory db)
         {
             app.UseExceptionHandler(error =>
             error.Run(async ctx => {
@@ -59,7 +62,7 @@ namespace Himitsu
 
             app.Use(async (context, done) =>
             {
-                await Task.Run(() => AutoLogin(context, sql));
+                await Task.Run(() => AutoLogin(context, db));
                 await done.Invoke();
                 if (Utility.EscapeDirectories(context.Request))
                     Console.WriteLine($"{context.Request.Method} | {context.Response.StatusCode} | {context.Request.Path}");
@@ -81,26 +84,21 @@ namespace Himitsu
             });
         }
 
-        private void AutoLogin(HttpContext context, MySqlConnection sql)
+        private void AutoLogin(HttpContext context, QueryFactory db)
         {
             if (!context.Session.Keys.Contains("userid") && context.Request.Cookies["rt"] != "" && !locked && Utility.EscapeDirectories(context.Request) && !context.Session.Keys.Contains("login"))
             {
                 locked = true;
                 Console.WriteLine($"LOG | Trying autologin by using cookies");
-                var cmd = new MySqlCommand("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", sql);
-                cmd.Parameters.AddWithValue("@token", context.Request.Cookies["rt"]);
-                var reader = cmd.ExecuteReader();
-                if (reader.Read() && reader["id"] != null)
+                var data = db.Select("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", new { token = context.Request.Cookies["rt"] }).First();
+                if (data != null)
                 {
-                    int id = (int)reader["id"];
-                    string pw = reader["password_md5"].ToString();
-                    reader.Close();
+                    int id = data.id;
                     Console.WriteLine($"LOG | Successful login for user {id}");
-                    Utility.setCookie(sql, context, id);
+                    Utility.setCookie(db, context, id);
                     context.Session.SetInt32("userid", id);
-                    context.Session.SetString("pw", Utility.CreateMD5(pw));
+                    context.Session.SetString("pw", Utility.CreateMD5((string)data.password_md5));
                 }
-                else { reader.Close(); }
                 locked = false;
             }
         }
