@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" href=".ico">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/content-1.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/beatmap.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Himitsu</title>
+  </head>
+
+    <header id="header">
+      <div id="header-top">
+        <a title="Открыть меню"><img src="../resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()"/></a>
+          <div id="header-profile-container">
+          </div>
+        <a href="" class="header-button-a"><img src="../resources/header/home-button.png" class="header-button"/><text class="header-button-text">Главная</text></a>
+        <a href="" class="header-button-a"><img src="../resources/header/leaderboard-button.png" class="header-button"/><text class="header-button-text">Рекорды</text></a>
+        <a href="" class="header-button-a"><img src="../resources/header/library-button.png" class="header-button"/><text class="header-button-text">Библиотека</text></a>
+      </div>
+      <div id="header-bottom">
+        <a href="" class="header-button-a"><img src="../resources/header/about.png" class="header-button"/><text class="header-button-text">О&nbsp;сервере</text></a>
+        <a href="" class="header-button-a"><img src="../resources/header/settings.png" class="header-button"/><text class="header-button-text">Настройки</text></a>
+      </div>
+    </header>
+
+  <body>
+    <div id="content">
+      <div class="panel">
+
+        <div class="mode-selector-panel">
+          <div>
+            <li id="mode-vanilla" onclick="osuMode(0)">Vanilla</li>
+            <li id="mode-relax" onclick="osuMode(1)">Relax</li>
+          </div>
+          <div class="mode-selector-panel-right">
+            <li id="mode-std" onclick="osuGameMode(0)">osu!Standard</li>
+            <li id="mode-taiko" onclick="osuGameMode(1)">osu!Taiko</li>
+            <li id="mode-ctb" onclick="osuGameMode(2)">osu!Catch</li>
+            <li id="mode-mania" onclick="osuGameMode(3)">osu!Mania</li>
+          </div>
+        </div>
+
+        <div id="beatmap-main-bg" class="white-text" style="background-image: url(https://assets.ppy.sh/beatmaps/954556/covers/cover@2x.jpg?1555863313);">
+          <div id="beatmap-info">
+            <div id="beatmap-diffs">
+              <div id="diff-button" class="show-all-diffs" onclick="beatmapFullDiff()">Показать все</div>
+              <div class="beatmap-diff">
+                <a href=""><img src="../resources/beatmap/circle-easy.png" height="25px"/></a>
+              </div>
+              <div class="beatmap-diff">
+                <img src="../resources/beatmap/circle-normal.png" height="25px"/>
+              </div>
+              <div class="beatmap-diff">
+                <img src="../resources/beatmap/circle-hard.png" height="25px"/>
+              </div>
+              <div class="beatmap-diff">
+                <img src="../resources/beatmap/circle-insane.png" height="25px"/>
+              </div>
+              <div class="beatmap-diff">
+                <img src="../resources/beatmap/circle-extra.png" height="25px"/>
+              </div>
+              <div class="beatmap-diff">
+                <img src="../resources/beatmap/circle-extra-plus.png" height="25px"/>
+              </div>
+
+            </div>
+            <text id="beatmap-diff-name">[7.06 ★] She'll Never Love You Like I Love You</text>
+            <div id="beatmap-stats">
+            <table>
+              <tr>
+                <td colspan="2" class="text-center main-value"><i><big>Ранкнута</big></i></td>
+              </tr>
+              <tr>
+                <td>Размер нот</td>
+                <td class="text-right">3.8</td>
+              </tr>
+              <tr>
+                <td>Скорость подхода</td>
+                <td class="text-right">9.2</td>
+              </tr>
+              <tr>
+                <td>Точность</td>
+                <td class="text-right">8.5</td>
+              </tr>
+              <tr>
+                <td>Потеря HP</td>
+                <td class="text-right">7.9</td>
+              </tr>
+            </table>
+            <table style="margin-top: 15px">
+              <tr>
+                <td class="beatmap-stat-icon"><img src="../resources/beatmap/star.svg"/></td>
+                <td></td>
+                <td class="beatmap-stat-icon"><img src="../resources/beatmap/clock.svg"/></td>
+                <td></td>
+                <td class="beatmap-stat-icon"><img src="../resources/beatmap/music-player.svg"/></td>
+              </tr>
+              <tr class="text-center">
+                <td>5.62</td>
+                <td></td>
+                <td>1:52</td>
+                <td></td>
+                <td>185</td>
+              </tr>
+            </table>
+          </div>
+          </div>
+        </div>
+
+        <div class="base-container">
+          <div>
+            <div id="beatmap-name" class="bold-text">Altar</div>
+            <div id="beatmap-author">That Poppy</div>
+            <div id="beatmap-creator"><i>от -NeBu-</i></div>
+          </div>
+          <div id="beatmap-buttons">
+            <a href="" class="link-button"><div class="beatmap-button button-cyan">Скачать</div></a>
+            <a href="" class="link-button"><div class="beatmap-button button-pink">Без видео</div></a>
+            <a href="" class="link-button"><div class="beatmap-button button-violet">osu!direct</div></a>
+          </div>
+        </div>
+
+        <div class="profile-separator"></div>
+
+        <div id="leaderboard-panel">
+            <table id="leaderboard-table">
+              <tr class="beatmap-text-top">
+                <td width="1px">Место</td>
+                <td width="20px"></td>
+                <td width="1px"></td>
+                <td>Игрок</td>
+                <td width="1px">Комбо</td>
+                <td width="1px">РР</td>
+                <td width="1px">Очки</td>
+                <td width="1px">Точность</td>
+                <td width="1px" class="text-center">Моды</td>
+                <td width="1px">300</td>
+                <td width="1px">100</td>
+                <td width="1px">50</td>
+                <td width="1px">Промах</td>
+                <td width="1px">Время</td>
+
+              </tr>
+              <tr class="text-left">
+                <td class="text-center">#1</td>
+                <td><img src="../resources/leaderboard/flag.png" height="20px"/></td>
+                <td><img src="../resources/leaderboard/flag.png" height="20px"/></td>
+                <td><a href="">DegenRune</a></td>
+                <td>3&nbsp;564</td>
+                <td>3&nbsp;564</td>
+                <td>2&nbsp;147&nbsp;828&nbsp;390</td>
+                <td>98.58%</td>
+                <td class="beatmap-mods"><img src="../resources/profile/HD.png" height="20px"/></td>
+                <td>31&nbsp;636</td>
+                <td>245</td>
+                <td>23</td>
+                <td>5</td>
+                <td>2&nbsp;д</td>
+              </tr>
+            </table>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

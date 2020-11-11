@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" href=".ico">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/content-1.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/profile.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Himitsu</title>
+  </head>
+
+    <header id="header">
+      <div id="header-top">
+        <a title="Открыть меню"><img src="../resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()"/></a>
+          <div id="header-profile-container">
+          </div>
+        <a href="" class="header-button-a"><img src="../resources/header/home-button.png" class="header-button"/><text class="header-button-text">Главная</text></a>
+        <a href="" class="header-button-a"><img src="../resources/header/leaderboard-button.png" class="header-button"/><text class="header-button-text">Рекорды</text></a>
+        <a href="" class="header-button-a"><img src="../resources/header/library-button.png" class="header-button"/><text class="header-button-text">Библиотека</text></a>
+      </div>
+      <div id="header-bottom">
+        <a href="" class="header-button-a"><img src="../resources/header/about.png" class="header-button"/><text class="header-button-text">О&nbsp;сервере</text></a>
+        <a href="" class="header-button-a"><img src="../resources/header/settings.png" class="header-button"/><text class="header-button-text">Настройки</text></a>
+      </div>
+    </header>
+
+  <body onload="displayContent(), osuMode(0), osuGameMode(0), profileMode(0), profileGameMode(0)">
+
+    <div id="content" class="content">
+      <div class="panel">
+
+        <div id="profile-top-bg" class="white-text">
+          <text class="text-shadow-6">Профиль DegenRune</text>
+        </div>
+
+        <div class="mode-selector-panel">
+          <div>
+            <li id="mode-vanilla" onclick="osuMode(0), profileMode(0)">Vanilla</li>
+            <li id="mode-relax" onclick="osuMode(1), profileMode(1)">Relax</li>
+          </div>
+          <div class="mode-selector-panel-right">
+            <li id="mode-std" onclick="osuGameMode(0), profileGameMode(0)">osu!Standard</li>
+            <li id="mode-taiko" onclick="osuGameMode(1), profileGameMode(1)">osu!Taiko</li>
+            <li id="mode-ctb" onclick="osuGameMode(2), profileGameMode(2)">osu!Catch</li>
+            <li id="mode-mania" onclick="osuGameMode(3), profileGameMode(3)">osu!Mania</li>
+          </div>
+        </div>
+
+        <div class="profile-separator">
+        </div>
+
+        <div id="profile-main-bg" class="white-text">
+          <div id="profile-main-background">
+            <img src="../resources/profile/profile-user-avatar.jpg" id="avatar" onclick="profileFullBg()"/>
+            <div id="profile-tables">
+
+              <div id="profile-all-tables" class="profile-main-table-container text-shadow-6">
+
+                <div id="profile-table-std">
+                  <div>
+                    <table style="margin-right: auto">
+                      <tr class="bold-text">
+                        <td>5859pp</td>
+                        <td class="text-right">99%</td>
+                      </tr>
+                      <tr class="bold-text">
+                        <td >#2.535.625 (Global)</td>
+                        <td class="text-right">#252.636 (RU)</td>
+                      </tr>
+                      <tr>
+                        <td>Количество игр</td>
+                        <td class="text-right">8 353</td>
+                      </tr>
+                      <tr>
+                        <td>Время в игре</td>
+                        <td class="text-right">305 часов</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Играет с планшетом</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Всего очков</td>
+                        <td class="text-right">7 352 646 425</td>
+                      </tr>
+                      <tr>
+                        <td>Рейтинговых очков</td>
+                        <td class="text-right">3 635 253 543</td>
+                      </tr>
+                      <tr>
+                        <td>Всего попаданий</td>
+                        <td class="text-right">3 583 653</td>
+                      </tr>
+                      <tr>
+                        <td>Реплеев просмотрено</td>
+                        <td class="text-right">10</td>
+                      </tr>
+                      <tr>
+                        <td>Зерегистрирован</td>
+                        <td class="text-right">27.05.2020</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="profile-table-taiko">
+                  <div>
+                    <table style="margin-right: auto">
+                      <tr class="bold-text">
+                        <td>5859pp</td>
+                        <td class="text-right">98%</td>
+                      </tr>
+                      <tr class="bold-text">
+                        <td >#2.535.625 (Global)</td>
+                        <td class="text-right">#252.636 (RU)</td>
+                      </tr>
+                      <tr>
+                        <td>Количество игр</td>
+                        <td class="text-right">8 353</td>
+                      </tr>
+                      <tr>
+                        <td>Время в игре</td>
+                        <td class="text-right">305 часов</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Играет с планшетом</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Всего очков</td>
+                        <td class="text-right">7 352 646 425</td>
+                      </tr>
+                      <tr>
+                        <td>Рейтинговых очков</td>
+                        <td class="text-right">3 635 253 543</td>
+                      </tr>
+                      <tr>
+                        <td>Всего попаданий</td>
+                        <td class="text-right">3 583 653</td>
+                      </tr>
+                      <tr>
+                        <td>Реплеев просмотрено</td>
+                        <td class="text-right">10</td>
+                      </tr>
+                      <tr>
+                        <td>Зерегистрирован</td>
+                        <td class="text-right">27.05.2020</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="profile-table-ctb">
+                  <div>
+                    <table style="margin-right: auto">
+                      <tr class="bold-text">
+                        <td>5859pp</td>
+                        <td class="text-right">97%</td>
+                      </tr>
+                      <tr class="bold-text">
+                        <td >#2.535.625 (Global)</td>
+                        <td class="text-right">#252.636 (RU)</td>
+                      </tr>
+                      <tr>
+                        <td>Количество игр</td>
+                        <td class="text-right">8 353</td>
+                      </tr>
+                      <tr>
+                        <td>Время в игре</td>
+                        <td class="text-right">305 часов</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Играет с планшетом</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Всего очков</td>
+                        <td class="text-right">7 352 646 425</td>
+                      </tr>
+                      <tr>
+                        <td>Рейтинговых очков</td>
+                        <td class="text-right">3 635 253 543</td>
+                      </tr>
+                      <tr>
+                        <td>Всего попаданий</td>
+                        <td class="text-right">3 583 653</td>
+                      </tr>
+                      <tr>
+                        <td>Реплеев просмотрено</td>
+                        <td class="text-right">10</td>
+                      </tr>
+                      <tr>
+                        <td>Зерегистрирован</td>
+                        <td class="text-right">27.05.2020</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="profile-table-mania">
+                  <div>
+                    <table style="margin-right: auto">
+                      <tr class="bold-text">
+                        <td>5859pp</td>
+                        <td class="text-right">96%</td>
+                      </tr>
+                      <tr class="bold-text">
+                        <td >#2.535.625 (Global)</td>
+                        <td class="text-right">#252.636 (RU)</td>
+                      </tr>
+                      <tr>
+                        <td>Количество игр</td>
+                        <td class="text-right">8 353</td>
+                      </tr>
+                      <tr>
+                        <td>Время в игре</td>
+                        <td class="text-right">305 часов</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Играет с планшетом</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Всего очков</td>
+                        <td class="text-right">7 352 646 425</td>
+                      </tr>
+                      <tr>
+                        <td>Рейтинговых очков</td>
+                        <td class="text-right">3 635 253 543</td>
+                      </tr>
+                      <tr>
+                        <td>Всего попаданий</td>
+                        <td class="text-right">3 583 653</td>
+                      </tr>
+                      <tr>
+                        <td>Реплеев просмотрено</td>
+                        <td class="text-right">10</td>
+                      </tr>
+                      <tr>
+                        <td>Зерегистрирован</td>
+                        <td class="text-right">27.05.2020</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="profile-table-std-relax">
+                  <div>
+                    <table style="margin-right: auto">
+                      <tr class="bold-text">
+                        <td>5859pp</td>
+                        <td class="text-right">95%</td>
+                      </tr>
+                      <tr class="bold-text">
+                        <td >#2.535.625 (Global)</td>
+                        <td class="text-right">#252.636 (RU)</td>
+                      </tr>
+                      <tr>
+                        <td>Количество игр</td>
+                        <td class="text-right">8 353</td>
+                      </tr>
+                      <tr>
+                        <td>Время в игре</td>
+                        <td class="text-right">305 часов</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Играет с планшетом</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Всего очков</td>
+                        <td class="text-right">7 352 646 425</td>
+                      </tr>
+                      <tr>
+                        <td>Рейтинговых очков</td>
+                        <td class="text-right">3 635 253 543</td>
+                      </tr>
+                      <tr>
+                        <td>Всего попаданий</td>
+                        <td class="text-right">3 583 653</td>
+                      </tr>
+                      <tr>
+                        <td>Реплеев просмотрено</td>
+                        <td class="text-right">10</td>
+                      </tr>
+                      <tr>
+                        <td>Зерегистрирован</td>
+                        <td class="text-right">27.05.2020</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="profile-table-taiko-relax">
+                  <div>
+                    <table style="margin-right: auto">
+                      <tr class="bold-text">
+                        <td>5859pp</td>
+                        <td class="text-right">94%</td>
+                      </tr>
+                      <tr class="bold-text">
+                        <td >#2.535.625 (Global)</td>
+                        <td class="text-right">#252.636 (RU)</td>
+                      </tr>
+                      <tr>
+                        <td>Количество игр</td>
+                        <td class="text-right">8 353</td>
+                      </tr>
+                      <tr>
+                        <td>Время в игре</td>
+                        <td class="text-right">305 часов</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Играет с планшетом</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Всего очков</td>
+                        <td class="text-right">7 352 646 425</td>
+                      </tr>
+                      <tr>
+                        <td>Рейтинговых очков</td>
+                        <td class="text-right">3 635 253 543</td>
+                      </tr>
+                      <tr>
+                        <td>Всего попаданий</td>
+                        <td class="text-right">3 583 653</td>
+                      </tr>
+                      <tr>
+                        <td>Реплеев просмотрено</td>
+                        <td class="text-right">10</td>
+                      </tr>
+                      <tr>
+                        <td>Зерегистрирован</td>
+                        <td class="text-right">27.05.2020</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="profile-table-ctb-relax">
+                  <div>
+                    <table style="margin-right: auto">
+                      <tr class="bold-text">
+                        <td>5859pp</td>
+                        <td class="text-right">93%</td>
+                      </tr>
+                      <tr class="bold-text">
+                        <td >#2.535.625 (Global)</td>
+                        <td class="text-right">#252.636 (RU)</td>
+                      </tr>
+                      <tr>
+                        <td>Количество игр</td>
+                        <td class="text-right">8 353</td>
+                      </tr>
+                      <tr>
+                        <td>Время в игре</td>
+                        <td class="text-right">305 часов</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">Играет с планшетом</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Всего очков</td>
+                        <td class="text-right">7 352 646 425</td>
+                      </tr>
+                      <tr>
+                        <td>Рейтинговых очков</td>
+                        <td class="text-right">3 635 253 543</td>
+                      </tr>
+                      <tr>
+                        <td>Всего попаданий</td>
+                        <td class="text-right">3 583 653</td>
+                      </tr>
+                      <tr>
+                        <td>Реплеев просмотрено</td>
+                        <td class="text-right">10</td>
+                      </tr>
+                      <tr>
+                        <td>Зерегистрирован</td>
+                        <td class="text-right">27.05.2020</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="profile-table-mania-relax">
+                </div>
+
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="profile-levels">
+
+          <div id="profile-level-std">
+            <div>
+
+
+              <div id="profile-level">
+                <div class="progress-bar" style="background-size: 6% 110%">
+                  <b class="white-text">6%</b>
+                </div>
+                <div class="progress-bar-percent">
+                  Level 97
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+        </div>
+
+        <div class="profile-separator">
+        </div>
+
+        <div class="mode-selector-panel">
+          <div class="mode-selector-single">
+            <li>Обо мне!</li>
+          </div>
+        </div>
+
+        <div class="base-container">
+          <text>Тут Ваш текст</text>
+        </div>
+
+        <div class="profile-separator">
+        </div>
+
+        <div class="mode-selector-panel">
+          <div>
+            <li id="profile-scores-best" onclick="profileMaps(0)">Лучшие скоры</li>
+            <li id="profile-scores-last" onclick="profileMaps(1)">Недавние скоры</li>
+          </div>
+        </div>
+
+        <div class="base-container">
+          <div id="scores-data">
+            <div class="score white-text" style="background-image: url(../resources/profile/rank_bg/rank_A.png)">
+                <img src="../resources/profile/rank_rank/A_nobg.png" height="50px"/>
+                <div class="score-info">
+                  <b>League of Legends - RISE (ft. The Glitch Mob, Mako, and The Word Alive)</b><dt>
+                    12 дней назад
+                </div>
+                <div class="score-mods">
+                  <div tooltip='Hidden'><img src="../resources/profile/HD.png" height="25px"/></div>
+                  <div tooltip='Hidden'><img src="../resources/profile/HD.png" height="25px"/></div>
+                  <div tooltip='Hidden'><img src="../resources/profile/HD.png" height="25px"/></div>
+                </div>
+                <div class="score-pp">
+                  <b>95.48%</b>
+                </div>
+                <div class="score-pp">
+                  <b>3223pp</b><dt>
+                  <text class="score-acc">225pp</b>
+                </div>
+              </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
