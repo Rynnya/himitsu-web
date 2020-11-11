@@ -65,6 +65,6 @@ function selectedDevice(){
   }
 }
 
-osuMode = document.getElementById('osuSettingMode').value;
+/*osuMode = document.getElementById('osuSettingMode').value;
 osuGameMode = document.getElementById('osuSettingGameMode').value;
-console.log(osuMode, osuGameMode, device);
+console.log(osuMode, osuGameMode, device);*/
