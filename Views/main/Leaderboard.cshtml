@@ -32,7 +32,7 @@
     </div>
 </header>
 
-<body onload="loadLeaderboard(0, 0), osuGameMode(0), osuMode(0)">
+<body onload="loadLeaderboard(0, 0), osuGameMode(0), osuMode(0), displayContent()">
     <div id="content">
         <div class="panel">
 
@@ -46,10 +46,10 @@
                     <li id="mode-relax" onclick="osuMode(1), loadLeaderboard(current_mode, 1)">Relax</li>
                 </div>
                 <div class="mode-selector-panel-right">
-                    <li id="mode-std" onclick="osuGameMode(0), loadLeaderboard(0, current_relax)">osu!Standard</li>
-                    <li id="mode-taiko" onclick="osuGameMode(1), loadLeaderboard(1, current_relax)">osu!Taiko</li>
-                    <li id="mode-ctb" onclick="osuGameMode(2), loadLeaderboard(2, current_relax)">osu!Catch</li>
-                    <li id="mode-mania" onclick="osuGameMode(3), loadLeaderboard(3, current_relax)">osu!Mania</li>
+                    <li id="mode-std" onclick="osuGameMode(0), loadLeaderboard(0, current_relax)">osu!standard</li>
+                    <li id="mode-taiko" onclick="osuGameMode(1), loadLeaderboard(1, current_relax)">osu!taiko</li>
+                    <li id="mode-ctb" onclick="osuGameMode(2), loadLeaderboard(2, current_relax)">osu!catch</li>
+                    <li id="mode-mania" onclick="osuGameMode(3), loadLeaderboard(3, current_relax)">osu!mania</li>
                 </div>
             </div>
 

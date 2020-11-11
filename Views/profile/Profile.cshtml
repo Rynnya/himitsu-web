@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http; 
+﻿@using Microsoft.AspNetCore.Http;
 @{ var nullable = "-"; var culture = new System.Globalization.CultureInfo("ru-RU");
     var playstyle = ""; switch (Convert.ToInt32(ViewBag.Data["play_style"])) { default: playstyle = ""; break;
         case 1: playstyle = "Играет с мышью"; break;
@@ -46,7 +46,7 @@
     </div>
 </header>
 
-<body onload="initJS(@ViewBag.Data["id"], @ViewBag.Data["favourite_relax"], @ViewBag.Data["favourite_mode"])">
+<body onload="initJS(@ViewBag.Data["id"], @ViewBag.Data["favourite_relax"], @ViewBag.Data["favourite_mode"]), displayContent()">
     <div id="content">
         <div class="panel">
 

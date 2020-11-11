@@ -31,6 +31,10 @@ function headerLogoButton() {
     }
 }
 
+function displayContent(){
+  document.getElementById('content').style.display = "flex";
+}
+
 function osuMode(mode) {
     let allOsuMode = [document.getElementById("mode-vanilla"), document.getElementById("mode-relax")];
 

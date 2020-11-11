@@ -1,5 +1,5 @@
-﻿@using Microsoft.AspNetCore.Http; 
-@{ 
+﻿@using Microsoft.AspNetCore.Http;
+@{
     var status = "";
     switch (Convert.ToInt32(ViewBag.Status))
     {
@@ -62,7 +62,7 @@
     </div>
 </header>
 
-<body>
+<body onload="displayContent()">
     <div id="content">
         <div class="panel">
 
@@ -72,10 +72,10 @@
                     <li id="mode-relax" onclick="osuMode(1), loadLeaderboard(beatmapID, curr_mode, 1)">Relax</li>
                 </div>
                 <div class="mode-selector-panel-right">
-                    <li id="mode-std" onclick="osuGameMode(0), loadLeaderboard(beatmapID, 0, curr_rx)">osu!Standard</li>
-                    <li id="mode-taiko" onclick="osuGameMode(1), loadLeaderboard(beatmapID, 1, curr_rx)">osu!Taiko</li>
-                    <li id="mode-ctb" onclick="osuGameMode(2), loadLeaderboard(beatmapID, 2, curr_rx)">osu!Catch</li>
-                    <li id="mode-mania" onclick="osuGameMode(3), loadLeaderboard(beatmapID, 3, curr_rx)">osu!Mania</li>
+                    <li id="mode-std" onclick="osuGameMode(0), loadLeaderboard(beatmapID, 0, curr_rx)">osu!standard</li>
+                    <li id="mode-taiko" onclick="osuGameMode(1), loadLeaderboard(beatmapID, 1, curr_rx)">osu!taiko</li>
+                    <li id="mode-ctb" onclick="osuGameMode(2), loadLeaderboard(beatmapID, 2, curr_rx)">osu!catch</li>
+                    <li id="mode-mania" onclick="osuGameMode(3), loadLeaderboard(beatmapID, 3, curr_rx)">osu!mania</li>
                 </div>
             </div>
 

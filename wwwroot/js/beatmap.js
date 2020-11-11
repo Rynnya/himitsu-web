@@ -1,5 +1,5 @@
 ﻿let beatmapFull = true;
-var mapset = []; 
+var mapset = [];
 function beatmapFullDiff() {
     var diffs = document.getElementById("beatmap-diffs");
     var button = document.getElementById("diff-button")
@@ -52,7 +52,7 @@ function loadLeaderboard(id, mode, relax) {
             leaderboard += `<td class="text-center">#${++i}</td>`;
             leaderboard += `<td class="text-center">${score.rank}</td>`;
             leaderboard += `<td><img src="../resources/flags/${user.country}.png" width="30px" height="20px"/></td>`;
-            leaderboard += `<td><a href="${'/u/' + user.id}">${user.username}</a></td>`;
+            leaderboard += `<td><a href="${'/u/' + user.id}" class="link-button-black">${user.username}</a></td>`;
             leaderboard += `<td>${addCommas(score.max_combo)}</td>`;
             leaderboard += `<td>${score.pp.toFixed()}</td>`;
             leaderboard += `<td>${addCommas(score.score)}</td>`;
