@@ -1,6 +1,10 @@
 var id = 0; var page = 1;
 var curr_mode = 0; var curr_rx = 0; var play_mode = "best";
 
+function displayContent(){
+  document.getElementById('content').style.display = "flex";
+}
+
 const mods = [
     "std",
     "taiko",
@@ -77,14 +81,14 @@ function beatmapFullDiff() {
 
 
     if (beatmapFull == false) {
-        button.textContent = button.textContent.replace('Скрыть', 'Показать все');
+        button.textContent = button.textContent.replace('РЎРєСЂС‹С‚СЊ', 'РџРѕРєР°Р·Р°С‚СЊ РІСЃРµ');
         diffs.style.maxWidth = "200px";
         diffs.style.maxHeight = "100px";
         beatmapFull = true;
     }
 
     else {
-        button.textContent = button.textContent.replace('Показать все', 'Скрыть');
+        button.textContent = button.textContent.replace('РџРѕРєР°Р·Р°С‚СЊ РІСЃРµ', 'РЎРєСЂС‹С‚СЊ');
         diffs.style.maxWidth = "none";
         diffs.style.maxHeight = "none";
         beatmapFull = false;

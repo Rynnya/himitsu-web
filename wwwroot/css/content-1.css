@@ -42,6 +42,119 @@
   font-weight: 400;
 }
 
+/*-----------SETTINGS-----------*/
+
+.submit{
+  cursor: pointer;
+  background-image: url(../resources/buttons/cyan-button.png);
+  border-radius: 15px;
+  width: 110px;
+  height: 30px;
+  background-size: 100% 100%;
+  outline: none;
+  border: none;
+  text-shadow: 0 0 3px black;
+}
+
+.select-box{
+  padding: 10px 0;
+  display: flex;
+  height: 36px;
+  flex-direction: row;
+}
+
+.select-check{
+  position: relative;
+  border-radius: 5px;
+  background-color: #eeeeee;
+  padding: 8px;
+  padding-right: 30px;
+  margin: 10px 10px 10px 0;
+}
+
+.select-check > input{
+  cursor: pointer;
+  right: 10px;
+  position: absolute;
+  top: 53%;
+  transform: translate(0, -50%);
+}
+
+.hor-line{
+  margin: 10px 0;
+  height: 1.5px;
+  background-color: #e3e3e3;
+  width: 100%;
+}
+
+/*the container must be positioned relative:*/
+.custom-select {
+  margin-right: 10px;
+  width: 20px;
+  position: relative;
+  font-family: Arial;
+}
+
+.custom-select select {
+  display: none; /*hide original SELECT element:*/
+}
+
+.select-selected {
+  border-radius: 5px;
+  background-color: #eeeeee;
+}
+
+/*style the arrow inside the select element:*/
+.select-selected:after {
+  background-image: url(../resources/settings/play.svg);
+  top: 14px;
+  position: absolute;
+  content: "";
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  transition: transform 0.3s;
+}
+
+/*point the arrow upwards when the select box is open (active):*/
+.select-selected.select-arrow-active:after {
+  transform: rotate(90deg);
+  transition: transform 0.3s;
+}
+
+/*style the items (options), including the selected item:*/
+.select-items div, .select-selected{
+  font-size: 16px;
+  color: black;
+  padding: 8px 8px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.2s;
+}
+
+/*style items (options):*/
+.select-items {
+  position: absolute;
+  background-color: #e5e5e5;
+  top: 100%;
+  left: 3px;
+  right: 3px;
+  z-index: 100;
+}
+
+/*hide the items when the select box is closed:*/
+.select-hide {
+  visibility: collapse;
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 /*-----------LOGIN-----------*/
 
 #verifying-panel{
@@ -297,7 +410,7 @@
 #beatmap-main-bg{
   position: relative;
   padding: 20px;
-  background-position: top;
+  background-position: center;
   background-size: cover;
   background-color: #333333cc;
   background-blend-mode: overlay;
@@ -365,6 +478,7 @@
 }
 
 #beatmap-buttons{
+  margin-top: 1.5px;
   margin-left: auto;
   float: right;
 }
@@ -410,10 +524,9 @@
 }
 
 #profile-top-bg{
-  background-position: right 0;
-  background-image: var(--background);
-  background-size: 95%;
+  background-size: cover;
   background-attachment: fixed;
+  background-image: var(--background);
   background-repeat: no-repeat;
   background-color: #24242477;
   background-blend-mode: overlay;
@@ -434,10 +547,9 @@
 }
 
 #profile-main-bg{
-  background-position: right 0;
-  background-image: var(--background);
-  background-size: 95%;
+  background-size: cover;
   background-attachment: fixed;
+  background-image: var(--background);
   background-repeat: no-repeat;
   background-color: #24242477;
   background-blend-mode: overlay;
@@ -465,9 +577,6 @@
   transition: 0.2s;
 }
 
-.bbcode-image {
-  max-width: 100%;
-}
 #profile-all-tables div{
   width: 100%;
 }
@@ -475,6 +584,8 @@
 #profile-all-tables div div{
   width: 100%;
   display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .profile-table{
@@ -491,18 +602,25 @@
 
 #profile-main-background > img{
   height: 140px;
+  max-width: 140px;
   border-radius: 20px;
 }
 
+.bbcode-image {
+  max-width: 100%;
+}
+
 .profile-main-table-container div table{
+  border-spacing: 0px;
   margin-left: 20px;
-  font-size: 20px;
+  font-size: 18px;
   width: 350px;
   height: 140px;
 }
 
 .profile-main-table-container div table tr td{
-  height: 20px;
+  height: 28px;
+  padding: 0;
 }
 
 #profile-levels > div{
@@ -511,7 +629,7 @@
 
 #profile-levels > div > div{
   display: flex;
-  background-color: #eeeeee;
+  background-color: #f7f7f7;
   background-size: 100%;
   height: 75px;
   width: 100%;
@@ -576,12 +694,15 @@
 }
 
 .score-pp{
+  width: 80px;
   margin: 0 10px;
   font-size: 21px;
-  text-align: right;
+  text-align: center;
 }
 
 .score-acc{
+  text-align: center;
+  width: 80px;
   margin: 0;
   text-height: 0.5;
   font-size: 19px;
