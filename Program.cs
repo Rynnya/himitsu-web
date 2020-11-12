@@ -61,7 +61,7 @@ namespace Himitsu
         public static void LogIP(QueryFactory db, HttpContext req, int user_id)
         {
             try { db.Statement("INSERT INTO ip_user (userid, ip, occurencies) VALUES ({@userid}, {@ip}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", new { userid = user_id, ip = req.Connection.RemoteIpAddress }); }
-            catch { Console.WriteLine($"WARN | 500 | Ќе удалось получить IP адрес пользовател€ {user_id}"); }
+            catch { Console.WriteLine($"WARN | 500 | Cannot resolve IP address of {user_id}"); }
         }
         public static string CreateMD5(string input)
         {

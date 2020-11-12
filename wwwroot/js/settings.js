@@ -63,6 +63,7 @@ function selectedDevice(){
       i.style.display = "block";
     }
   }
+  document.getElementsByName('style')[0].attributes.value.textContent = device;
 }
 /*
 osuMode = document.getElementById('osuSettingMode').value;

@@ -12,6 +12,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using SqlKata.Compilers;
 using SqlKata.Execution;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Himitsu
 {
@@ -40,16 +42,15 @@ namespace Himitsu
             {
                 opts.Cookie.IsEssential = true;
             });
+            services.AddScoped(x => {
+                return new QueryFactory(new MySqlConnection(var.Connection), new MySqlCompiler());
+            });
             services.AddMvc();
-            var _sql = new MySqlConnection(var.Connection);
-            _sql.Open();
-            var db = new QueryFactory(_sql, new MySqlCompiler());
-            services.AddSingleton(db);
             services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, QueryFactory db)
+        public void Configure(IApplicationBuilder app)
         {
             app.UseExceptionHandler(error =>
             error.Run(async ctx => {
@@ -62,7 +63,7 @@ namespace Himitsu
 
             app.Use(async (context, done) =>
             {
-                await Task.Run(() => AutoLogin(context, db));
+                await Task.Run(() => AutoLogin(context));
                 await done.Invoke();
                 if (Utility.EscapeDirectories(context.Request))
                     Console.WriteLine($"{context.Request.Method} | {context.Response.StatusCode} | {context.Request.Path}");
@@ -84,10 +85,11 @@ namespace Himitsu
             });
         }
 
-        private void AutoLogin(HttpContext context, QueryFactory db)
+        private void AutoLogin(HttpContext context)
         {
             if (!context.Session.Keys.Contains("userid") && context.Request.Cookies["rt"] != "" && !locked && Utility.EscapeDirectories(context.Request) && !context.Session.Keys.Contains("login"))
             {
+                var db = new QueryFactory(new MySqlConnection(var.Connection), new MySqlCompiler());
                 locked = true;
                 Console.WriteLine($"LOG | Trying autologin by using cookies");
                 var data = db.Select("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", new { token = context.Request.Cookies["rt"] }).First();
