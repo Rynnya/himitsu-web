@@ -1,10 +1,6 @@
 var id = 0; var page = 1;
 var curr_mode = 0; var curr_rx = 0; var play_mode = "best";
 
-function displayContent(){
-  document.getElementById('content').style.display = "flex";
-}
-
 const mods = [
     "std",
     "taiko",

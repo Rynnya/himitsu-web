@@ -12,8 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using SqlKata.Compilers;
 using SqlKata.Execution;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Himitsu
 {
@@ -25,8 +23,6 @@ namespace Himitsu
             Configuration = configuration;
         }
         public IConfiguration Configuration { get; }
-
-        public bool locked = false;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -84,24 +80,19 @@ namespace Himitsu
                 endpoints.MapControllerRoute("profile", "u/{id?}", new { controller = "profile", Action = "Profile" });             // done
             });
         }
-
         private void AutoLogin(HttpContext context)
         {
-            if (!context.Session.Keys.Contains("userid") && context.Request.Cookies["rt"] != "" && !locked && Utility.EscapeDirectories(context.Request) && !context.Session.Keys.Contains("login"))
+            if (!context.Session.Keys.Contains("userid") && context.Request.Cookies["rt"] != "" && Utility.EscapeDirectories(context.Request) && !context.Session.Keys.Contains("login"))
             {
                 var db = new QueryFactory(new MySqlConnection(var.Connection), new MySqlCompiler());
-                locked = true;
                 Console.WriteLine($"LOG | Trying autologin by using cookies");
                 var data = db.Select("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", new { token = context.Request.Cookies["rt"] }).First();
-                if (data != null)
-                {
-                    int id = data.id;
-                    Console.WriteLine($"LOG | Successful login for user {id}");
-                    Utility.setCookie(db, context, id);
-                    context.Session.SetInt32("userid", id);
-                    context.Session.SetString("pw", Utility.CreateMD5((string)data.password_md5));
-                }
-                locked = false;
+                int id = data.id;
+                Console.WriteLine($"LOG | Successful login for user {id}");
+                Utility.setCookie(db, context, id);
+                context.Session.SetInt32("userid", id);
+                context.Session.SetString("pw", (string)data.password_md5);
+                Utility.LogIP(db, context, id);
             }
         }
     }

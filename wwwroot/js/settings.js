@@ -40,6 +40,16 @@ function fill(osuMode, osuGameMode, device){
   }
 }
 
+function selected(submode, std_o, relax_o, relax_o, taiko_p, ctb_p, mania_p) {
+    document.getElementsByName("submode")[0].options[submode + 1].selected = "selected";
+    document.getElementsByName("vanilla_order")[0].options[std_o + 1].selected = "selected";
+    document.getElementsByName("relax_order")[0].options[relax_o + 1].selected = "selected";
+    document.getElementsByName("std_prior")[0].options[relax_o + 1].selected = "selected";
+    document.getElementsByName("taiko_prior")[0].options[taiko_p + 1].selected = "selected";
+    document.getElementsByName("ctb_prior")[0].options[ctb_p + 1].selected = "selected";
+    document.getElementsByName("mania_prior")[0].options[mania_p + 1].selected = "selected";
+}
+
 function selectedDevice(){
   device = 0;
   selected = 0;
@@ -63,9 +73,47 @@ function selectedDevice(){
       i.style.display = "block";
     }
   }
-  document.getElementsByName('style')[0].attributes.value.textContent = device;
 }
-/*
-osuMode = document.getElementById('osuSettingMode').value;
-osuGameMode = document.getElementById('osuSettingGameMode').value;
-console.log(osuMode, osuGameMode, device);*/
+
+function previewAvatar() {
+  $("#ava")
+    .change(function (e) {
+      var f = e.target.files;
+      if (f.length < 1) {
+        return;
+      }
+      var u = window.URL.createObjectURL(f[0]);
+      var i = $("#avat")[0];
+      i.src = u;
+      i.onload = function () { window.URL.revokeObjectURL(this.src); };
+    });
+}
+
+function resetAvatar(url){
+  document.getElementById('avat').src = url;
+}
+
+function resetBg(url){
+  document.getElementById('setting-bg').src = url;
+}
+
+function userpageBg(){
+  let bg = document.getElementById('setting-bg-input').value;
+  document.getElementById('setting-bg').src = bg;
+}
+
+function parseBB(){
+    var lastCD = null;
+    $("textarea[name='new_page']").on('input', function () {
+        if (lastCD !== null) {
+            clearTimeout(lastCD);
+        }
+        lastCD = setTimeout(function () {
+            if ($("textarea[name='new_page']").val() !== null) {
+                $.post("/settings/userpage/parse", { code: $("textarea[name='new_page']").val() }, function (data) {
+                    $("#userpage-preview").html(data);
+                }, "text");
+            }
+        }, 1000)
+    });
+}

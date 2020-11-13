@@ -28,17 +28,14 @@ namespace Himitsu.Views.register
                 ViewBag.Error = "Ты здесь уже был.";
                 return View("error403");
             }
-            string check;
-            try { check = _db.Query("identity_tokens").SelectRaw("SELECT 1 FROM identity_tokens WHERE token = @token AND userid = @user_id", new { token = Request.Cookies["y"], user_id = u }).First(); }
-            catch { Console.WriteLine("WARN | ERR | MySQL panic! Cannot resolve identify token, trying to redirect to this action."); return RedirectToAction("Verify", new { u }); }
+            string check = _db.Query("identity_tokens").SelectRaw("SELECT 1 FROM identity_tokens WHERE token = @token AND userid = @user_id", new { token = Request.Cookies["y"], user_id = u }).First();
             if (check != null)
             {
                 ViewBag.Error = "Зачем ты это делаешь?";
                 return View("error403");
             }
 
-            try { check = _db.Query("users").Select("privileges").Where("id", u).First(); }
-            catch { Console.WriteLine("WARN | ERR | MySQL panic! Cannot resolve user permissions, trying to redirect to this action."); return RedirectToAction("Verify", new { u }); }
+            check = _db.Query("users").Select("privileges").Where("id", u).First();
             if (check != UserPrivileges.Pending.ToString())
             {
                 ViewBag.Error = "Что ты тут забыл?";
@@ -89,8 +86,7 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
 
-            string check;
-            check = _db.Query("users").Select("1").Where("username_safe", username.ToString().ToLowerInvariant().Replace(" ", "_")).First();
+            string check = _db.Query("users").Select("1").Where("username_safe", username.ToString().ToLowerInvariant().Replace(" ", "_")).First();
             if (check != null)
             {
                 ViewBag.Error = "Такой пользователь уже существует!";
@@ -108,9 +104,7 @@ namespace Himitsu.Views.register
 
             _db.Query("users").Insert(new { username, username_safe = username.ToString().ToLowerInvariant(), hash, email = mail, date = DateTime.UnixEpoch, privileges = UserPrivileges.Pending });
 
-            int user_id = 0;
-            var data = _db.Query("users").Select("id").Where("email", mail).Where("password_md5", hash).First();
-            user_id = Convert.ToInt32(data.id);
+            int user_id = _db.Query("users").Select("id").Where("email", mail).Where("password_md5", hash).First().id;
 
             _db.Query("users_stats").Insert(new { id = user_id, username, user_color = "black", user_style = "", ranked_score_std = 0, playcount_std = 0, total_score_std = 0, ranked_score_taiko = 0, playcount_taiko = 0, total_score_taiko = 0, ranked_score_ctb = 0, playcount_ctb = 0, total_score_ctb = 0, ranked_score_mania = 0, playcount_mania = 0, total_score_mania = 0 });
             _db.Query("users_stats_relax").Insert(new { id = user_id });

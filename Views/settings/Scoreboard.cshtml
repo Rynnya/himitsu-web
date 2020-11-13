@@ -1,0 +1,142 @@
+﻿@using Microsoft.AspNetCore.Http; 
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href=".ico">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/content-1.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/settings.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Himitsu</title>
+    <style>:root {--background: url(@ViewBag.Background);}</style>
+</head>
+
+<header id="header">
+    <div id="header-top">
+        <a title="Открыть меню"><img src="~/resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()" /></a>
+        <div id="header-profile-container">
+        </div>
+        @{ if (Context.Session.Keys.Contains("userid"))
+            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="~/resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
+        <a href="/" class="header-button-a"><img src="~/resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
+        <a href="/leaderboard" class="header-button-a"><img src="~/resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
+        <a href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="~/resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
+    </div>
+    <div id="header-bottom">
+        <a href="/about" class="header-button-a"><img src="~/resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
+        <a href="/settings" class="header-button-a"><img src="~/resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
+        @{ if (Context.Session.Keys.Contains("userid"))
+            { <a href="/logout" class="header-button-a"><img src="~/resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
+    </div>
+</header>
+
+
+<body onload="selected(@ViewBag.r, @ViewBag.q.scoreboard_display_classic, @ViewBag.q.scoreboard_display_relax, @ViewBag.q.score_overwrite_std, @ViewBag.q.score_overwrite_taiko, @ViewBag.q.score_overwrite_ctb, @ViewBag.q.score_overwrite_mania), selectors(), displayContent()">
+    <div id="content">
+        <div class="panel">
+
+            <div id="profile-top-bg">
+                <text class="text-shadow-6 white-text">Настройки</text>
+            </div>
+
+            <div class="mode-selector-panel">
+                <div>
+                    <a href="/settings/profile"><li>Профиль</li></a>
+                    <a href="/settings/avatar"><li>Аватар</li></a>
+                    <a href="/settings/userpage"><li>Обо мне!</li></a>
+                    <a href="/settings/background"><li>Фон профиля</li></a>
+                    <a href="/settings/scoreboard"><li id="selected">Внутриигровые</li></a>
+                    <a href="/settings/password"><li>Пароль</li></a>
+                </div>
+            </div>
+
+            <div class="profile-separator"></div>
+
+            <div class="base-container">
+                <form method="post">
+                    <h2>Подрежим</h2>
+
+                    <div class="select-box">
+
+                        <div class="custom-select" style="width: 360px;">
+                            <select name="submode">
+                                <option value="null">Выберите режим</option>
+                                <option value="0">Vanilla</option>
+                                <option value="1">Relax</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hor-line"></div>
+                    <div class="select-box">
+                        <h2>Режим отображения</h2>
+                    </div>
+                    <div class="select-box">
+
+                        <div class="custom-select" style="width:175px;">
+                            <select name="vanilla_order">
+                                <option value="null">Выберите режим</option>
+                                <option value="0">Vanilla: Очки</option>
+                                <option value="1">Vanilla: PP</option>
+                            </select>
+                        </div>
+
+                        <div class="custom-select" style="width:175px;">
+                            <select name="relax_order">
+                                <option value="null">Выберите игровой режим</option>
+                                <option value="0">Relax: Очки</option>
+                                <option value="1">Relax: PP</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="hor-line"></div>
+
+                    <h2>Режим отображения для модов</h2>
+                    <div class="select-box">
+
+                        <div class="custom-select" style="width:175px;">
+                            <select name="std_prior">
+                                <option value="null">Выберите режим</option>
+                                <option value="0">osu!standard: Очки</option>
+                                <option value="1">osu!standard: PP</option>
+                            </select>
+                        </div>
+
+                        <div class="custom-select" style="width:175px;">
+                            <select name="taiko_prior">
+                                <option value="null">Выберите режим</option>
+                                <option value="0">osu!taiko: Очки</option>
+                                <option value="1">osu!taiko: PP</option>
+                            </select>
+                        </div>
+
+                        <div class="custom-select" style="width:175px;">
+                            <select name="ctb_prior">
+                                <option value="null">Выберите режим</option>
+                                <option value="0">osu!catch: Очки</option>
+                                <option value="1">osu!catch: PP</option>
+                            </select>
+                        </div>
+
+                        <div class="custom-select" style="width:175px;">
+                            <select name="mania_prior">
+                                <option value="null">Выберите игровой режим</option>
+                                <option value="0">osu!mania: Очки</option>
+                                <option value="1">osu!mania: PP</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="hor-line"></div>
+
+                    <input class="submit white-text button-cyan" type="submit" value="Сохранить" style="margin-bottom: 5px;">
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

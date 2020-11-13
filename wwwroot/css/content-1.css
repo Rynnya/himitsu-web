@@ -44,11 +44,14 @@
 
 /*-----------SETTINGS-----------*/
 
+form > h2{
+  margin-bottom: 10px;
+}
+
 .submit{
   cursor: pointer;
-  background-image: url(../resources/buttons/cyan-button.png);
   border-radius: 15px;
-  width: 110px;
+  width: 125px;
   height: 30px;
   background-size: 100% 100%;
   outline: none;
@@ -57,7 +60,6 @@
 }
 
 .select-box{
-  padding: 10px 0;
   display: flex;
   height: 36px;
   flex-direction: row;
@@ -69,7 +71,9 @@
   background-color: #eeeeee;
   padding: 8px;
   padding-right: 30px;
-  margin: 10px 10px 10px 0;
+  margin-right: 10px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
 }
 
 .select-check > input{
@@ -155,6 +159,50 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
+.settings-avatar{
+  width: 290px;
+}
+
+.file-upload-button{
+  font-size: 14px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+input[type="file"] {
+  width: 125px;
+  display: none;
+}
+
+#avat{
+  border-radius: 5px;
+}
+
+#userpage-text{
+  box-sizing: border-box;
+  padding: 10px;
+  max-width: 100%;
+  min-width: 100%;
+  min-height: 50px;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 0 0 1px black;
+}
+
+.text-input{
+  padding: 5px;
+  width: 200px;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 0 0 1px black;
+}
+
+#userpage-text:focus{
+  border: none;
+  outline: none;
+  box-shadow: 0 0 2px black;
+}
+
 /*-----------LOGIN-----------*/
 
 #verifying-panel{
@@ -186,7 +234,7 @@
 }
 
 .verifying-main-input, .verifying-main-submit{
-  box-shadow: 0px 2px 2px #333333;
+  box-shadow: 0px 1px 2px #333333;
   height: 30px;
   border-radius: 8px;
   outline: none;
@@ -519,10 +567,6 @@
 
 /*-----------PROFILE-----------*/
 
-:root {
-  --background: url(https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif);
-}
-
 #profile-top-bg{
   background-size: cover;
   background-attachment: fixed;
@@ -602,12 +646,7 @@
 
 #profile-main-background > img{
   height: 140px;
-  max-width: 140px;
   border-radius: 20px;
-}
-
-.bbcode-image {
-  max-width: 100%;
 }
 
 .profile-main-table-container div table{

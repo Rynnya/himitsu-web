@@ -31,7 +31,7 @@ function headerLogoButton() {
     }
 }
 
-function displayContent(){
+function displayContent() {
   document.getElementById('content').style.display = "flex";
 }
 

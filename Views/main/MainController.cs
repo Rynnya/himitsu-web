@@ -47,21 +47,21 @@ namespace Himitsu.Pages
                 return View("error403");
             }
 
-            var data = new Data();
-            var user_safe = username.ToString().ToLowerInvariant().Replace(" ", "_");
-            var user_data = _db.Select("SELECT u.id, u.password_md5, u.username, s.country, u.privileges FROM users u LEFT JOIN users_stats s ON s.id = u.id WHERE u.username_safe = @user_safe LIMIT 1", new { user_safe }).First();
+            Data data = new Data();
+            string user_safe = username.ToString().ToLowerInvariant().Replace(" ", "_");
+            dynamic user_data;
+            try { user_data = _db.Select("SELECT u.id, u.password_md5, u.username, s.country, u.privileges FROM users u LEFT JOIN users_stats s ON s.id = u.id WHERE u.username_safe = @user_safe LIMIT 1", new { user_safe }).First(); }
+            catch
+            {
+                ViewBag.Error = "Пользователя с таким ником не существует!";
+                return View("error403");
+            }
             data.ID = user_data.id;
             data.Username = user_data.username;
             data.Password = user_data.password_md5;
             data.Country = user_data.country;
             data.pRaw = user_data.privileges;
             data.Privileges = (UserPrivileges)data.pRaw;
-
-            if (data.Username == null)
-            {
-                ViewBag.Error = "Пользователя с таким ником не существует!";
-                return View("error403");
-            }
 
             if (!BCrypt.Net.BCrypt.Verify(Utility.CreateMD5(password).ToLowerInvariant(), data.Password))
             {

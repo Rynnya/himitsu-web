@@ -84,10 +84,8 @@ img{
   display: block;
   visibility: hidden;
   margin-left: 10px;
-
   transition: 0.2s 0.4s;
   opacity: 0;
-
   font-size: 17px;
 }
 
@@ -166,6 +164,10 @@ img{
 
 .text-shadow-6{
   text-shadow: 0 0 6px black;
+}
+
+.text-shadow-3{
+  text-shadow: 0 0 3px black;
 }
 
 .button-cyan, .button-pink, .button-violet, .button-green, .button-blue, .button-gray{
@@ -249,4 +251,23 @@ img{
 
 .hide{
   display: none;
+}
+
+.bbcode-image{
+  max-width: 100%;
+}
+
+.quick-errors{
+  width: 100%;
+}
+
+.quick-error-red{
+  font-size: 14px;
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 10px;
+  border: solid 2px #ff000066;
+  padding: 10px;
+  background-color: #ff000055;
+  margin-bottom: 20px;
 }

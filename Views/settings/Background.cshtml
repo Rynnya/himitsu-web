@@ -1,16 +1,17 @@
-﻿@using Microsoft.AspNetCore.Http;
+﻿@using Microsoft.AspNetCore.Http; 
 <!DOCTYPE html>
 <html>
 <head>
     <link rel="shortcut icon" href="~/favicon.ico">
-    <link rel="stylesheet" href="~/css/main.css">
-    <link rel="stylesheet" href="~/css/content-1.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/content-1.css">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="~/js/global.js"></script>
-    <script type="text/javascript" src="~/js/leaderboard.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/settings.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <meta charset="utf-8">
     <title>Himitsu</title>
+    <style>:root {--background: url(@ViewBag.Background);}</style>
 </head>
 
 <header id="header">
@@ -32,47 +33,44 @@
     </div>
 </header>
 
-<body onload="loadLeaderboard(0, 0), osuGameMode(0), osuMode(0), displayContent()">
-    <div id="content" class="content">
+
+<body onload="userpageBg(), displayContent()">
+    <div id="content">
         <div class="panel">
 
-            <div id="leader-top-bg">
-                <text class="white-text">Таблица лидеров</text>
+            <div id="profile-top-bg">
+                <text class="text-shadow-6 white-text">Настройки</text>
             </div>
 
             <div class="mode-selector-panel">
                 <div>
-                    <li id="mode-vanilla" onclick="osuMode(0), loadLeaderboard(current_mode, 0)">Vanilla</li>
-                    <li id="mode-relax" onclick="osuMode(1), loadLeaderboard(current_mode, 1)">Relax</li>
-                </div>
-                <div class="mode-selector-panel-right">
-                    <li id="mode-std" onclick="osuGameMode(0), loadLeaderboard(0, current_relax)">osu!standard</li>
-                    <li id="mode-taiko" onclick="osuGameMode(1), loadLeaderboard(1, current_relax)">osu!taiko</li>
-                    <li id="mode-ctb" onclick="osuGameMode(2), loadLeaderboard(2, current_relax)">osu!catch</li>
-                    <li id="mode-mania" onclick="osuGameMode(3), loadLeaderboard(3, current_relax)">osu!mania</li>
+                    <a href="/settings/profile"><li>Профиль</li></a>
+                    <a href="/settings/avatar"><li>Аватар</li></a>
+                    <a href="/settings/userpage"><li>Обо мне!</li></a>
+                    <a href="/settings/background"><li id="selected">Фон профиля</li></a>
+                    <a href="/settings/scoreboard"><li>Внутриигровые</li></a>
+                    <a href="/settings/password"><li>Пароль</li></a>
                 </div>
             </div>
 
-            <div class="profile-separator">
-            </div>
+            <div class="profile-separator"></div>
 
-            <div id="leaderboard-panel">
+            <div class="base-container">
+                <form method="post" style="width: 100%;">
+                    <h2>Фон профиля</h2>
+                    Вставьте ссылку на изображение <i>(.svg/.png/.jpg/.jpeg)</i> или анимированное изображение <i>(.gif)</i>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <input name="back" style="width: 100%; margin-right: 10px;" type="text" id="setting-bg-input" value="@ViewBag.Background" class="verifying-main-input">
+                        <input type="button" value="Обновить" onclick="userpageBg()" style="float: right" class="submit white-text button-pink">
+                    </div>
+                    <div class="hor-line"></div>
 
-                <table id="leaderboard-table">
-                    <thead>
-                        <tr class="leader-text-top">
-                            <td width="30px">Место</td>
-                            <td width="10px"></td>
-                            <td class="text-left">Игрок</td>
-                            <td width="100px">РР</td>
-                            <td width="100px">Точность</td>
-                            <td width="100px">Уровень</td>
-                            <td width="140px">Количество игр</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                    <img id="setting-bg" width="100%" />
+
+                    <div class="hor-line"></div>
+                    <input class="submit white-text button-cyan" type="submit" value="Сохранить">
+                    <input class="submit white-text button-gray" type="reset" value="Очистить" onclick="resetBg('@ViewBag.Background')">
+                </form>
             </div>
         </div>
     </div>

@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="shortcut icon" href="~/favicon.ico">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/content-1.css">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -19,16 +19,16 @@
         <div id="header-profile-container">
         </div>
         @{ if (Context.Session.Keys.Contains("userid"))
-            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="../resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
-        <a href="/" class="header-button-a"><img src="../resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
-        <a href="/leaderboard" class="header-button-a"><img src="../resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
-        <a href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="../resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
+            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="~/resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
+        <a href="/" class="header-button-a"><img src="~/resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
+        <a href="/leaderboard" class="header-button-a"><img src="~/resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
+        <a href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="~/resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
     </div>
     <div id="header-bottom">
-        <a href="/about" class="header-button-a"><img src="../resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
-        <a href="/settings" class="header-button-a"><img src="../resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
+        <a href="/about" class="header-button-a"><img src="~/resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
+        <a href="/settings" class="header-button-a"><img src="~/resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
         @{ if (Context.Session.Keys.Contains("userid"))
-            { <a href="/logout" class="header-button-a"><img src="../resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
+            { <a href="/logout" class="header-button-a"><img src="~/resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
     </div>
 </header>
 

@@ -1,10 +1,12 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using Q101.BbCodeNetCore;
 using SqlKata.Execution;
 using SshNet.Security.Cryptography;
 
@@ -43,6 +45,44 @@ namespace Himitsu
     }
     public class Utility
     {
+        public static string Background(QueryFactory db, int id)
+        {
+            try
+            {
+                string background = db.Query("users_stats").Select("background_site").Where("id", id).First().background_site;
+                if (string.IsNullOrEmpty(background))
+                    background = "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif";
+                return background;
+            }
+            catch { return "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif"; }
+        }
+        public static string ParseBB(string code)
+        {
+            var bbcode = new BbCodeParser(Q101.BbCodeNetCore.Enums.ErrorMode.ErrorFree, null, new[]
+                {
+                    new BbTag("b", "<b>", "</b>", true, true),
+                    new BbTag("url", "<a href=\"${href}\" class=\"bbcode-url\">", "</a>", new BbAttribute("href", ""), new BbAttribute("href", "href")),
+                    new BbTag("img", "<img src=\"${content}\" class=\"bbcode-image\" />", "", false, true),
+                    new BbTag("u", "<em class=\"bbcode-underline\">", "</em>"),
+                    new BbTag("s", "<del class=\"bbcode-strikethrough\">", "</del>"),
+                    new BbTag("i", "<em class=\"bbcode-italic\">", "</em>"),
+                    new BbTag("code", "<code class=\"bbcode-code\">", "</code>"),
+                    new BbTag("quote", "<blockquote class=\"bbcode-quote\">", "</blockquote>"),
+                    new BbTag("sup", "<sup class=\"bbcode-superscript\">", "</sup>"),
+                    new BbTag("sub", "<sub class=\"bbcode-subscript\">", "</sub>"),
+                    new BbTag("center", "<center>", "</center>")
+                });
+            return bbcode.ToHtml(code);
+        }
+        public static bool CheckPrivileges(HttpContext ctx, QueryFactory _db, UserPrivileges privileges)
+        {
+            if (!ctx.Session.Keys.Contains("userid"))
+                return true;
+            long priv = _db.Query("users").Select("privileges").Where("id", ctx.Session.GetInt32("userid")).First().id;
+            if (priv < (long)privileges)
+                return true;
+            return false;
+        }
         public static bool EscapeDirectories(HttpRequest req)
         {
             if (req.Path.StartsWithSegments("/resources") || req.Path.StartsWithSegments("/css") || req.Path.StartsWithSegments("/js") || req.Path.StartsWithSegments("/favicon.ico"))
@@ -60,7 +100,7 @@ namespace Himitsu
         }
         public static void LogIP(QueryFactory db, HttpContext req, int user_id)
         {
-            try { db.Statement("INSERT INTO ip_user (userid, ip, occurencies) VALUES ({@userid}, {@ip}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", new { userid = user_id, ip = req.Connection.RemoteIpAddress }); }
+            try { db.Statement("INSERT INTO ip_user (userid, ip, occurencies) VALUES ({@userid}, {@ip}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", new { userid = user_id, ip = req.Connection.RemoteIpAddress.ToString() }); }
             catch { Console.WriteLine($"WARN | 500 | Cannot resolve IP address of {user_id}"); }
         }
         public static string CreateMD5(string input)
@@ -82,7 +122,9 @@ namespace Himitsu
         }
         public static void setCookie(QueryFactory db, HttpContext req, int user_id)
         {
-            var token = db.Query("identity_tokens").Select("token").Where("userid", user_id).First().token;
+            string token;
+            try { token = db.Query("identity_tokens").Select("token").Where("userid", user_id).First().token; }
+            catch { token = null; }
             if (token != null)
             {
                 addCookie(req, "y", token, 24 * 30 * 6);
@@ -93,9 +135,8 @@ namespace Himitsu
                 while (true)
                 {
                     token = SHA256.Create().ComputeHash(Encoding.GetEncoding("UTF-8").GetBytes(GenerateString(30))).ToString();
-                    var check = db.Query("identity_tokens").Select("token").Where("token", token).First().token;
-                    if (check == null)
-                        break;
+                    try { _ = db.Query("identity_tokens").Select("token").Where("token", token).First().token; }
+                    catch { break; }
                 }
                 db.Query("identity_tokens").Insert(new { userid = user_id, token });
                 addCookie(req, "y", token, 24 * 30 * 6);
