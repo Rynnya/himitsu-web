@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NETCore.Encrypt;
 using SqlKata.Execution;
 
 namespace Himitsu.Pages
@@ -63,7 +64,7 @@ namespace Himitsu.Pages
             data.pRaw = user_data.privileges;
             data.Privileges = (UserPrivileges)data.pRaw;
 
-            if (!BCrypt.Net.BCrypt.Verify(Utility.CreateMD5(password).ToLowerInvariant(), data.Password))
+            if (!BCrypt.Net.BCrypt.Verify(EncryptProvider.Md5(password).ToLowerInvariant(), data.Password))
             {
                 ViewBag.Error = "Неверный пароль.";
                 return View("error403");
@@ -73,7 +74,6 @@ namespace Himitsu.Pages
             if (UserPrivileges.Pending == data.Privileges)
             {
                 Utility.setCookie(_db, HttpContext, data.ID);
-                s.CommitAsync();
                 return RedirectToAction("Verify", "register", new { u = data.ID });
             }
 
@@ -84,7 +84,8 @@ namespace Himitsu.Pages
             }
             Utility.setCookie(_db, HttpContext, data.ID);
             s.SetInt32("userid", data.ID);
-            s.SetString("pw", Utility.CreateMD5(data.Password).ToLowerInvariant());
+            s.SetString("pw", EncryptProvider.Md5(data.Password).ToLowerInvariant());
+            s.CommitAsync();
 
             afterLogin(data.ID, HttpContext, data.Country);
             return RedirectToAction("Main", "main");
@@ -92,15 +93,14 @@ namespace Himitsu.Pages
         public void afterLogin(int user_id, HttpContext ctx, string country)
         {
             var s = GenerateToken(user_id);
-            Utility.addCookie(ctx, "rt", Utility.CreateMD5(s).ToLowerInvariant(), 24 * 30 * 1);
+            Utility.addCookie(ctx, "rt", EncryptProvider.Md5(s).ToLowerInvariant(), 24 * 30 * 1);
             if (country == "XX")
                 Utility.setCountry(_db, HttpContext, user_id);
-            Utility.LogIP(_db, HttpContext, user_id);
         }
         public string GenerateToken(int user_id)
         {
             var rs = Utility.GenerateString(32);
-            _db.Query("tokens").Insert(new { user = user_id, privileges = '0', description = HttpContext.Connection.RemoteIpAddress.ToString(), token = Utility.CreateMD5(rs).ToLowerInvariant(), last_updated = DateTime.UnixEpoch });
+            _db.Query("tokens").Insert(new { user = user_id, privileges = '0', description = HttpContext.Connection.RemoteIpAddress.ToString(), token = EncryptProvider.Md5(rs).ToLowerInvariant(), last_updated = DateTime.UnixEpoch });
             return rs;
         }
 

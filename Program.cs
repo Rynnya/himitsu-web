@@ -6,9 +6,9 @@ using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using NETCore.Encrypt;
 using Q101.BbCodeNetCore;
 using SqlKata.Execution;
-using SshNet.Security.Cryptography;
 
 namespace Himitsu
 {
@@ -27,7 +27,7 @@ namespace Himitsu
                 });
     }
 
-    public enum UserPrivileges
+    public enum UserPrivileges:long
     {
         Banned = 0,
         Restricted = 2,
@@ -45,19 +45,22 @@ namespace Himitsu
     }
     public class Utility
     {
-        public static string Background(QueryFactory db, int id)
+        public static string[] Background(QueryFactory db, int id)
         {
-            try
-            {
-                string background = db.Query("users_stats").Select("background_site").Where("id", id).First().background_site;
-                if (string.IsNullOrEmpty(background))
-                    background = "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif";
-                return background;
+            try {
+                dynamic done = db.Query("users_stats").Select("background_site", "horizontal", "vertical").Where("id", id).First();
+                if (string.IsNullOrEmpty(done.background_site))
+                    return new string[] { "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif", done.horizontal + "%", done.vertical + "%" };
+                return new string[] { done.background_site, done.horizontal + "%", done.vertical + "%" };
             }
-            catch { return "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif"; }
+            catch {
+                return new string[] { "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif", "0%", "0%" };
+            }
         }
         public static string ParseBB(string code)
         {
+            if (string.IsNullOrEmpty(code))
+                return string.Empty;
             var bbcode = new BbCodeParser(Q101.BbCodeNetCore.Enums.ErrorMode.ErrorFree, null, new[]
                 {
                     new BbTag("b", "<b>", "</b>", true, true),
@@ -70,7 +73,9 @@ namespace Himitsu
                     new BbTag("quote", "<blockquote class=\"bbcode-quote\">", "</blockquote>"),
                     new BbTag("sup", "<sup class=\"bbcode-superscript\">", "</sup>"),
                     new BbTag("sub", "<sub class=\"bbcode-subscript\">", "</sub>"),
-                    new BbTag("center", "<center>", "</center>")
+                    new BbTag("center", "<center>", "</center>"),
+                    new BbTag("color", "<span style=\"color: ${color};\">", "</span>", new BbAttribute("color", ""), new BbAttribute("color", "color")),
+                    new BbTag("size", "<span style=\"font-size: ${size};\">", "</span>", new BbAttribute("size", ""), new BbAttribute("size", "size"))
                 });
             return bbcode.ToHtml(code);
         }
@@ -78,8 +83,8 @@ namespace Himitsu
         {
             if (!ctx.Session.Keys.Contains("userid"))
                 return true;
-            long priv = _db.Query("users").Select("privileges").Where("id", ctx.Session.GetInt32("userid")).First().id;
-            if (priv < (long)privileges)
+            long priv = _db.Query("users").Select("privileges").Where("id", ctx.Session.GetInt32("userid")).First().privileges;
+            if (priv < Convert.ToInt64(privileges))
                 return true;
             return false;
         }
@@ -98,28 +103,6 @@ namespace Himitsu
                 return;
             db.Query("users_stats").Update(new { country = stream.ToString(), id = user_id });
         }
-        public static void LogIP(QueryFactory db, HttpContext req, int user_id)
-        {
-            try { db.Statement("INSERT INTO ip_user (userid, ip, occurencies) VALUES ({@userid}, {@ip}, '1') ON DUPLICATE KEY UPDATE occurencies = occurencies + 1", new { userid = user_id, ip = req.Connection.RemoteIpAddress.ToString() }); }
-            catch { Console.WriteLine($"WARN | 500 | Cannot resolve IP address of {user_id}"); }
-        }
-        public static string CreateMD5(string input)
-        {
-            // Use input string to calculate MD5 hash
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
-            {
-                byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-                // Convert the byte array to hexadecimal string
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("X2"));
-                }
-                return sb.ToString();
-            }
-        }
         public static void setCookie(QueryFactory db, HttpContext req, int user_id)
         {
             string token;
@@ -134,13 +117,13 @@ namespace Himitsu
             {
                 while (true)
                 {
-                    token = SHA256.Create().ComputeHash(Encoding.GetEncoding("UTF-8").GetBytes(GenerateString(30))).ToString();
+                    token = EncryptProvider.Sha256(GenerateString(30));
                     try { _ = db.Query("identity_tokens").Select("token").Where("token", token).First().token; }
                     catch { break; }
                 }
                 db.Query("identity_tokens").Insert(new { userid = user_id, token });
                 addCookie(req, "y", token, 24 * 30 * 6);
-            }    
+            }
         }
         public static void addCookie(HttpContext req, string name, string data, int time)
         {

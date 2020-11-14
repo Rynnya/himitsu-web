@@ -304,3 +304,15 @@ function closeAllSelect(elmnt) {
 /*if the user clicks anywhere outside the select box,
 then close all select boxes:*/
 document.addEventListener("click", closeAllSelect);
+
+//Thanks https://stackoverflow.com/questions/41186580/disable-enter-to-submit-the-form
+function enterBlocker(){
+$(document).keydown(function(e) {
+    var element = e.target.nodeName.toLowerCase();
+    var element1 = e.target;
+    if (element != 'textarea') {
+        if (e.keyCode === 13) {
+            return false;
+        }
+    }
+})};

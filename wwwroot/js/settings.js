@@ -73,6 +73,7 @@ function selectedDevice(){
       i.style.display = "block";
     }
   }
+  document.getElementsByName("style")[0].defaultValue = device;
 }
 
 function previewAvatar() {
@@ -116,4 +117,25 @@ function parseBB(){
             }
         }, 1000)
     });
+}
+
+function positionBg(){
+  let bg = document.getElementsByClassName('demo')[0];
+  let link = document.getElementsByName('back')[0].value
+  let hor = document.getElementsByName('horiz')[0].value
+  let ver = document.getElementsByName('vert')[0].value
+  bg.style.background = hor + "%" + "" + ver + "%" + "" + "url(" + link + ")";
+  bg.style.backgroundRepeat = "no-repeat";
+  bg.style.backgroundSize = "cover";
+}
+
+function demo(vis){
+  if (vis == 1){
+  document.getElementsByClassName('demo')[0].style.visibility = "visible";
+  document.getElementsByClassName('demo')[0].style.opacity = "1";
+  }
+  if (vis == 0){
+  document.getElementsByClassName('demo')[0].style.visibility = "collapse";
+  document.getElementsByClassName('demo')[0].style.opacity = "0";
+  }
 }

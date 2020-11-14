@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using System.Drawing;
 using Microsoft.AspNetCore.Html;
+using System.Net;
+using NETCore.Encrypt;
 
 namespace Himitsu.Views.settings
 {
@@ -32,7 +34,10 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            ViewBag.Background = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
             ViewBag.DB = _db.Query("users_stats").Select("play_style", "favourite_mode", "favourite_relax").Where("id", HttpContext.Session.GetInt32("userid")).First();
             return View();
         }
@@ -40,11 +45,18 @@ namespace Himitsu.Views.settings
         [HttpPost("profile")]
         public IActionResult Profile(int style, int mode, int relax)
         {
+            if (!HttpContext.Session.Keys.Contains("userid"))
+                return RedirectToAction("login", "main");
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
+            ViewBag.DB = _db.Query("users_stats").Select("play_style", "favourite_mode", "favourite_relax").Where("id", HttpContext.Session.GetInt32("userid")).First();
             if (style > 15 || style < 0)
                 return Redirect("/settings/profile");
-            if (HttpContext.Session.Keys.Contains("userid"))
-                _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { play_style = style, favourite_mode = mode, favourite_relax = relax });
-            return Redirect("/settings/profile");
+            _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { play_style = (short)style, favourite_mode = mode, favourite_relax = relax });
+            ViewBag.Success = "Настройки успешно изменены!";
+            return View();
         }
 
         [HttpGet("avatar")]
@@ -52,13 +64,18 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            ViewBag.Background = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
             return View();
         }
 
         [HttpPost("avatar")]
         public IActionResult Avatar(IFormFile avatar)
         {
+            if (!HttpContext.Session.Keys.Contains("userid"))
+                return RedirectToAction("login", "main");
             Image img = Image.FromStream(avatar.OpenReadStream());
             Bitmap newimg = new Bitmap(img, new Size { Height = 256, Width = 256 });
             newimg.Save($"/home/pi/himitsu/avatar-server/Avatars/{HttpContext.Session.GetInt32("userid")}.png", ImageFormat.Png);
@@ -70,7 +87,10 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            ViewBag.Background = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
             ViewBag.Userpage = (string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).First().userpage_content;
             try { ViewBag.Encoded = new HtmlContentBuilder().AppendHtml(Utility.ParseBB((string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).First().userpage_content)); }
             catch { ViewBag.Encoded = null; }
@@ -80,8 +100,7 @@ namespace Himitsu.Views.settings
         [HttpPost("userpage")]
         public IActionResult Userpage(string new_page)
         {
-            if (HttpContext.Session.Keys.Contains("userid"))
-                _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { userpage_content = new_page });
+            _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { userpage_content = new_page });
             return Redirect("/settings/userpage");
         }
 
@@ -93,20 +112,21 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string done = _db.Query("users_stats").Select("background_site").Where("id", HttpContext.Session.GetInt32("userid")).First().background_site;
-            if (string.IsNullOrWhiteSpace(done))
-                ViewBag.Background = "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif";
-            else
-                ViewBag.Background = done;
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
             return View();
         }
 
         [HttpPost("background")]
-        public IActionResult Background(string back)
+        public IActionResult Background(string back, int horiz, int vert)
         {
-            if (HttpContext.Session.Keys.Contains("userid"))
-                _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { background_site = back });
-            ViewBag.Background = back;
+            _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { background_site = back, horizontal = horiz, vertical = vert });
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
             return View();
         }
 
@@ -117,25 +137,26 @@ namespace Himitsu.Views.settings
                 return RedirectToAction("login", "main");
             ViewBag.r = (int)_db.Query("users").Select("is_relax").Where("id", HttpContext.Session.GetInt32("userid")).First().is_relax;
             ViewBag.q = _db.Query("users_preferences").Where("id", HttpContext.Session.GetInt32("userid")).First();
-            ViewBag.Background = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
             return View();
         }
 
         [HttpPost("scoreboard")]
         public IActionResult Scoreboard(int submode, int vanilla_order, int relax_order, int std_prior, int taiko_prior, int ctb_prior, int mania_prior)
         {
-            if (!HttpContext.Session.Keys.Contains("userid"))
-                return RedirectToAction("login", "main");
-            _db.Query("users").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { is_relax = submode });
+            _db.Query("users").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { is_relax = (byte)submode });
             // fuck this whole life
             _db.Query("users_preferences").Where("id", HttpContext.Session.GetInt32("userid")).Update(new
             {
-                scoreboard_display_classic = vanilla_order,
-                scoreboard_display_relax = relax_order,
-                score_overwrite_std = std_prior,
-                score_overwrite_taiko = taiko_prior,
-                score_overwrite_ctb = ctb_prior,
-                score_overwrite_mania = mania_prior
+                scoreboard_display_classic = (byte)vanilla_order,
+                scoreboard_display_relax = (byte)relax_order,
+                score_overwrite_std = (byte)std_prior,
+                score_overwrite_taiko = (byte)taiko_prior,
+                score_overwrite_ctb = (byte)ctb_prior,
+                score_overwrite_mania = (byte)mania_prior
             });
             return Redirect("/settings/scoreboard");
         }
@@ -145,7 +166,10 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            ViewBag.Background = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
             return View();
         }
 
@@ -154,8 +178,11 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            ViewBag.Background = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            if (!BCrypt.Net.BCrypt.Verify(Utility.CreateMD5(old_pass).ToLowerInvariant(), HttpContext.Session.GetString("pw")))
+            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Background = bg[0];
+            ViewBag.Horizontal = bg[1];
+            ViewBag.Vertical = bg[2];
+            if (!BCrypt.Net.BCrypt.Verify(EncryptProvider.Md5(old_pass).ToLowerInvariant(), _db.Query("users").Select("password_md5").Where("id", HttpContext.Session.GetInt32("userid")).First().password_md5))
             {
                 ViewBag.QuickError = "Неправильный пароль.";
                 return View();
@@ -170,8 +197,8 @@ namespace Himitsu.Views.settings
                 ViewBag.QuickError = "Вы ввели два разных пароля.";
                 return View();
             }
-            _db.Query("users").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { password_md5 = BCrypt.Net.BCrypt.HashPassword(Utility.CreateMD5(new_pass)) });
-            HttpContext.Session.SetString("pw", BCrypt.Net.BCrypt.HashPassword(Utility.CreateMD5(new_pass)));
+            _db.Query("users").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { password_md5 = BCrypt.Net.BCrypt.HashPassword(EncryptProvider.Md5(new_pass)) });
+            HttpContext.Session.SetString("pw", BCrypt.Net.BCrypt.HashPassword(EncryptProvider.Md5(new_pass)));
             return Redirect("/settings/password");
         }
     }

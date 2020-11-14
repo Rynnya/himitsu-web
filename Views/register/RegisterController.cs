@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
+using NETCore.Encrypt;
 using SqlKata.Execution;
 
 namespace Himitsu.Views.register
@@ -28,15 +29,17 @@ namespace Himitsu.Views.register
                 ViewBag.Error = "Ты здесь уже был.";
                 return View("error403");
             }
-            string check = _db.Query("identity_tokens").SelectRaw("SELECT 1 FROM identity_tokens WHERE token = @token AND userid = @user_id", new { token = Request.Cookies["y"], user_id = u }).First();
+            string check;
+            try { check = _db.Query("identity_tokens").SelectRaw("SELECT token FROM identity_tokens WHERE token = @token AND userid = @user_id", new { token = Request.Cookies["y"], user_id = u }).First().token; }
+            catch { check = null; }
             if (check != null)
             {
                 ViewBag.Error = "Зачем ты это делаешь?";
                 return View("error403");
             }
 
-            check = _db.Query("users").Select("privileges").Where("id", u).First();
-            if (check != UserPrivileges.Pending.ToString())
+            long check_priv = _db.Query("users").Select("privileges").Where("id", u).First().privileges;
+            if (check_priv != Convert.ToInt64(UserPrivileges.Pending))
             {
                 ViewBag.Error = "Что ты тут забыл?";
                 return View("error403");
@@ -86,23 +89,26 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
 
-            string check = _db.Query("users").Select("1").Where("username_safe", username.ToString().ToLowerInvariant().Replace(" ", "_")).First();
+            string check;
+            try { check = _db.Query("users").Select("username_safe").Where("username_safe", username.ToString().ToLowerInvariant().Replace(" ", "_")).First().username_safe; }
+            catch { check = null; }
             if (check != null)
             {
                 ViewBag.Error = "Такой пользователь уже существует!";
                 return View("error403");
             }
-
-            check = _db.Query("users").Select("1").Where("email", mail).First();
+            
+            try { check = _db.Query("users").Select("email").Where("email", mail).First().email; }
+            catch { check = null; }
             if (check != null)
             {
                 ViewBag.Error = "Эта почта уже занята!";
                 return View("error403");
             }
 
-            var hash = BCrypt.Net.BCrypt.HashPassword(Utility.CreateMD5(password).ToLowerInvariant(), 10);
+            var hash = BCrypt.Net.BCrypt.HashPassword(EncryptProvider.Md5(password).ToLowerInvariant(), 10);
 
-            _db.Query("users").Insert(new { username, username_safe = username.ToString().ToLowerInvariant(), hash, email = mail, date = DateTime.UnixEpoch, privileges = UserPrivileges.Pending });
+            _db.Query("users").Insert(new { username, username_safe = username.ToString().ToLowerInvariant(), password_md5 = hash, email = mail, register_datetime = DateTime.UnixEpoch, privileges = UserPrivileges.Pending });
 
             int user_id = _db.Query("users").Select("id").Where("email", mail).Where("password_md5", hash).First().id;
 
@@ -111,14 +117,13 @@ namespace Himitsu.Views.register
             _db.Query("users_preferences").Insert(new { id = user_id });
 
             Utility.setCookie(_db, HttpContext, user_id);
-            Utility.LogIP(_db, HttpContext, user_id);
             HttpContext.Session.CommitAsync();
             return RedirectToAction("Verify", "register", new { u = user_id });
         }
         private bool registerEnabled()
         {
-            var check = _db.Query("system_settings").Select("value_int").Where("name", "registrations_enabled").First();
-            return Utility.StringToBool(check.value_int);
+            int check = _db.Query("system_settings").Select("value_int").Where("name", "registrations_enabled").First().value_int;
+            return Utility.IntToBool(check);
         }
     }
 }

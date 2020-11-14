@@ -62,10 +62,9 @@ namespace Himitsu
                 await Task.Run(() => AutoLogin(context));
                 await done.Invoke();
                 if (Utility.EscapeDirectories(context.Request))
-                    Console.WriteLine($"{context.Request.Method} | {context.Response.StatusCode} | {context.Request.Path}");
+                    Console.WriteLine($"{context.Request.Method,-4} | {context.Response.StatusCode} | {context.Request.Path}");
             });
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -74,25 +73,34 @@ namespace Himitsu
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute("verify", "register/verify", new { controller = "register", Action = "Verify" });      // done
-                endpoints.MapControllerRoute("register", "register", new { controller = "register", Action = "Register" });         // done
-                endpoints.MapControllerRoute("beatmap", "b/{id?}", new { controller = "beatmap", Action = "Beatmap" });             // done
-                endpoints.MapControllerRoute("profile", "u/{id?}", new { controller = "profile", Action = "Profile" });             // done
+                endpoints.MapControllerRoute("verify", "register/verify", new { controller = "register", Action = "Verify" });
+                endpoints.MapControllerRoute("register", "register", new { controller = "register", Action = "Register" });
+                endpoints.MapControllerRoute("beatmap", "b/{id?}", new { controller = "beatmap", Action = "Beatmap" });
+                endpoints.MapControllerRoute("profile", "u/{id?}", new { controller = "profile", Action = "Profile" });
+                endpoints.MapControllerRoute("set",     "s/{id?}", new { controller = "beatmap", Action = "Set" });
             });
         }
         private void AutoLogin(HttpContext context)
         {
-            if (!context.Session.Keys.Contains("userid") && context.Request.Cookies["rt"] != "" && Utility.EscapeDirectories(context.Request) && !context.Session.Keys.Contains("login"))
+            try
             {
-                var db = new QueryFactory(new MySqlConnection(var.Connection), new MySqlCompiler());
-                Console.WriteLine($"LOG | Trying autologin by using cookies");
-                var data = db.Select("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", new { token = context.Request.Cookies["rt"] }).First();
-                int id = data.id;
-                Console.WriteLine($"LOG | Successful login for user {id}");
-                Utility.setCookie(db, context, id);
-                context.Session.SetInt32("userid", id);
-                context.Session.SetString("pw", (string)data.password_md5);
-                Utility.LogIP(db, context, id);
+                if (!context.Session.Keys.Contains("userid") && !string.IsNullOrEmpty(context.Request.Cookies["rt"]) && Utility.EscapeDirectories(context.Request) && !context.Session.Keys.Contains("login"))
+                {
+                    var db = new QueryFactory(new MySqlConnection(var.Connection), new MySqlCompiler());
+                    Console.WriteLine($"LOG  | XXX | Trying autologin by using cookies");
+                    var data = db.Select("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", new { token = context.Request.Cookies["rt"] }).First();
+                    int id = data.id;
+                    Console.WriteLine($"LOG  | XXX | Successful login for user {id}");
+                    Utility.setCookie(db, context, id);
+                    context.Session.SetInt32("userid", id);
+                    context.Session.SetString("pw", (string)data.password_md5);
+                    context.Session.CommitAsync();
+                }
+            }
+            catch { 
+                Console.WriteLine("WARN | ERR | Something bad happend when trying to get cookie, aborting.");
+                context.Session.SetInt32("login", 0);
+                context.Session.CommitAsync();
             }
         }
     }

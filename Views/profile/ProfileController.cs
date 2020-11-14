@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
-using Q101.BbCodeNetCore;
 using Microsoft.AspNetCore.Html;
 using SqlKata.Execution;
 using System.Linq;
@@ -37,8 +36,13 @@ namespace Himitsu.Pages
                 var relax = JToken.Parse(data);
                 http = new HttpClient();
                 data = http.GetStringAsync($"https://api.himitsu.ml/api/v1/users/userpage?id={id}").Result;
-                var userpage = new HtmlContentBuilder().AppendHtml(Utility.ParseBB(JToken.Parse(data)["userpage"].ToString()));
-                ViewBag.Background = Utility.Background(_db, id);
+                IHtmlContentBuilder userpage = null;
+                if (!string.IsNullOrEmpty(JToken.Parse(data)["userpage"].ToString()))
+                    userpage = new HtmlContentBuilder().AppendHtml(Utility.ParseBB(JToken.Parse(data)["userpage"].ToString()));
+                string[] bg = Utility.Background(_db, id);
+                ViewBag.Background = bg[0];
+                ViewBag.Horizontal = bg[1];
+                ViewBag.Vertical = bg[2];
                 ViewBag.Data = json;
                 ViewBag.Userpage = userpage;
                 ViewBag.Relax = relax;

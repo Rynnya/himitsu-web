@@ -8,7 +8,7 @@ function beatmapFullDiff() {
     if (beatmapFull == false) {
         button.textContent = button.textContent.replace('Скрыть', 'Показать все');
         diffs.style.maxWidth = "200px";
-        diffs.style.maxHeight = "100px";
+        diffs.style.maxHeight = "102px";
         beatmapFull = true;
     }
 
@@ -32,11 +32,13 @@ function difficultySelect(stars) {
 }
 function initUpdate(json) {
     $("div#beatmap-main-bg").css("background-image", `url(https://assets.ppy.sh/beatmaps/${beatmapSetID}/covers/cover@2x.jpg)`);
-    var i = 0;
     json.forEach(function (w) { mapset[w.BeatmapID] = w; });
     $("text#beatmap-diff-name").html(`[${mapset[beatmapID].DifficultyRating.toFixed(2)} ★] ${mapset[beatmapID].DiffName.replace("'", "\'")}`);
-    loadLeaderboard(beatmapID, 0, 0);
-    loadDifficulties();
+    $('#beatmap-diffs').mouseleave(function () { $("text#beatmap-diff-name").html(`[${mapset[beatmapID].DifficultyRating.toFixed(2)} ★] ${mapset[beatmapID].DiffName.replace("'", "\'")}`); });
+    loadLeaderboard(beatmapID, mapset[beatmapID].Mode, 0);
+    osuGameMode(mapset[beatmapID].Mode);
+    osuMode(0);
+    loadDifficulties(beatmapID);
 }
 
 function loadLeaderboard(id, mode, relax) {
@@ -69,13 +71,31 @@ function loadLeaderboard(id, mode, relax) {
     curr_rx = relax;
 }
 
-function loadDifficulties() {
+function selectMode(mode) {
+    switch (mode) {
+        case 0:
+            return "std";
+        case 1:
+            return "taiko";
+        case 2:
+            return "ctb";
+        case 3:
+            return "mania";
+        default:
+            return "std";
+    }
+}
+
+function loadDifficulties(bid) {
     var diff = "";
     if (jsonData.length < 15) {
         $("div#diff-button.show-all-diffs").css("display", "none");
     }
     jsonData.forEach(function (score) {
-        diff += `<a href="/b/${score.BeatmapID}"><div onmouseover="changeDiffName(${score.DifficultyRating.toFixed(2)}, '${score.DiffName.replace("'", "\\\'")}')" class="beatmap-diff"><img src="../resources/beatmap/circle-${difficultySelect(score.DifficultyRating)}.png" height="25px" /></a></div>`;
+        var css = `class="beatmap-diff`;
+        if (score.BeatmapID == bid) { css += ` beatmap-diff-selected"`; }
+        else { css += `"`; };
+        diff += `<a href="/b/${score.BeatmapID}"><div onmouseover="changeDiffName(${score.DifficultyRating.toFixed(2)}, '${score.DiffName.replace("'", "\\\'")}')" ${css} ><img src="../resources/beatmap/${selectMode(score.Mode)}.png" class="filter-${difficultySelect(score.DifficultyRating)}" height="25px" /></div></a>`
     });
     $("div#beatmap-diffs").append(diff);
     $("td#cs").html(mapset[beatmapID].CS);

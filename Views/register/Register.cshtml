@@ -2,11 +2,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="shortcut icon" href="~/favicon.ico">
-    <link rel="stylesheet" href="~/css/main.css">
-    <link rel="stylesheet" href="~/css/content-1.css">
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/content-1.css">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="~/js/global.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <meta charset="utf-8">
     <title>Himitsu</title>
@@ -14,20 +14,20 @@
 
 <header id="header">
     <div id="header-top">
-        <a title="Открыть меню"><img src="~/resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()" /></a>
+        <a title="Открыть меню"><img src="../resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()" /></a>
         <div id="header-profile-container">
         </div>
         @{ if (Context.Session.Keys.Contains("userid"))
-            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="~/resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
-        <a href="/" class="header-button-a"><img src="~/resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
-        <a href="/leaderboard" class="header-button-a"><img src="~/resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
-        <a href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="~/resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
+            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="../resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
+        <a href="/" class="header-button-a"><img src="../resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
+        <a href="/leaderboard" class="header-button-a"><img src="../resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
+        <a target="_blank" href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="../resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
     </div>
     <div id="header-bottom">
-        <a href="/about" class="header-button-a"><img src="~/resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
-        <a href="/settings" class="header-button-a"><img src="~/resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
+        <a href="/about" class="header-button-a"><img src="../resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
+        <a href="/settings" class="header-button-a"><img src="../resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
         @{ if (Context.Session.Keys.Contains("userid"))
-            { <a href="/logout" class="header-button-a"><img src="~/resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
+            { <a href="/logout" class="header-button-a"><img src="../resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
     </div>
 </header>
 
@@ -45,12 +45,13 @@
             <div class="verifying-main register">
                 <form method="post">
                     <text>Имя пользователя</text>
-                    <input type="text" name="username" value="" class="verifying-main-input">
+                    <input type="text" name="username" value="" class="input-text">
                     <text>Электронная почта</text>
-                    <input type="text" name="mail" value="" class="verifying-main-input">
+                    <input type="text" name="mail" value="" class="input-text">
                     <text>Пароль</text>
-                    <input type="password" name="password" value="" class="verifying-main-input">
-                    <input type="submit" name="" value="Отправить" class="verifying-main-submit register-submit white-text">
+                    <input type="password" name="password" value="" class="input-text">
+                    <div class="small-separator"></div>
+                    <input type="submit" value="Отправить" class="button standard-button button-verify button-blue">
                 </form>
             </div>
 
@@ -58,7 +59,7 @@
             </div>
 
             <div class="register-rules register">
-                Нажимая кнопку "<b>Отправить</b>", Вы соглашаетесь с <a href="" class="link-page-white">правилами нашего сервера</a> и обязываетесь их выполнять, в противном случае можете понести наказание за их нарушение.
+                Нажимая кнопку "<b>Отправить</b>", Вы соглашаетесь с <a href="" class="white-text"><u>правилами нашего сервера</u></a> и обязываетесь их выполнять, в противном случае можете понести наказание за их нарушение.
             </div>
 
         </div>

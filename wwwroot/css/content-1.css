@@ -163,12 +163,6 @@ form > h2{
   width: 290px;
 }
 
-.file-upload-button{
-  font-size: 14px;
-  padding: 7px 14px;
-  cursor: pointer;
-}
-
 input[type="file"] {
   width: 125px;
   display: none;
@@ -203,6 +197,34 @@ input[type="file"] {
   box-shadow: 0 0 2px black;
 }
 
+.demo{
+  visibility: collapse;
+  opacity: 0;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 100%;
+  z-index: 100;
+  background-size: cover;
+  transition: opacity 0.5s, visibility 0.5s;
+}
+
+.demo-panel{
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  right: 20px;
+  top: 20px;
+  background-color: #cccccc;
+  padding: 10px 10px 0;
+  border-radius: 10px;
+}
+
+.demo-panel *{
+  margin: 5px 0;
+}
+
 /*-----------LOGIN-----------*/
 
 #verifying-panel{
@@ -212,15 +234,18 @@ input[type="file"] {
   width: 90%;
 }
 
+.verify-form > *{
+  margin: 5px 0;
+}
+
 .verifying-top, .verifying-main{
   background-size: auto 100%;
   background-position: center;
   background-attachment: fixed;
   background-blend-mode: soft-light;
   padding: 20px;
-   ;
   font-size: 36px;
-  text-shadow: 0 1.5px 2px #242424;
+  text-shadow: 0 0 3px black;
 }
 
 .verifying-main{
@@ -233,41 +258,18 @@ input[type="file"] {
   flex-direction: column;
 }
 
-.verifying-main-input, .verifying-main-submit{
-  box-shadow: 0px 1px 2px #333333;
-  height: 30px;
-  border-radius: 8px;
-  outline: none;
-  border: none;
-  margin: 10px 0;
-}
-
-.verifying-main-input{
-  font-size: 19px;
-  padding-left: 10px;
-}
-
-.verifying-main-submit{
-  transition: 0.2s;
-  cursor: pointer;
-   ;
-  font-size: 18px;
-  text-shadow: 0 0 2.5px #242424;
-  width: 125px;
-}
-
 .login{
-  background-image: url(../resources/verify/login.png);
+  background-image: url(../resources/verify/login.jpg);
   background-color: #605c46;
 }
 
 .register{
-  background-image: url(../resources/verify/register.png);
-  background-color: #5489bf;
+  background-image: url(../resources/verify/register.jpg);
+  background-color: #3e82c7;
 }
 
 .verify{
-  background-image: url(../resources/verify/verify.png);
+  background-image: url(../resources/verify/verify.jpg);
   background-color: #a15e9a;
 }
 
@@ -293,7 +295,6 @@ input[type="file"] {
   background-attachment: fixed;
   background-blend-mode: soft-light;
   padding: 20px;
-   ;
   font-size: 20px;
   text-shadow: 0 1.5px 2px #242424;
 }
@@ -346,6 +347,7 @@ input[type="file"] {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+
 @keyframes loadingRotation {
   0%{
     transform: rotate(0deg);
@@ -448,12 +450,37 @@ input[type="file"] {
 }
 
 .title-buttons a{
+  text-shadow: 0 0 3px black;
+  color: white;
   font-size: 23px;
-  text-decoration: none;
-  text-shadow: 0 1px 4px #242424;
 }
 
 /*-----------BEATMAP-----------*/
+
+.filter-easy{
+  filter: invert(56%) sepia(71%) saturate(656%) hue-rotate(76deg) brightness(97%) contrast(87%);
+}
+
+.filter-normal{
+  filter: invert(83%) sepia(26%) saturate(6227%) hue-rotate(175deg) brightness(103%) contrast(106%)
+}
+
+.filter-hard{
+  filter: invert(91%) sepia(73%) saturate(1028%) hue-rotate(329deg) brightness(97%) contrast(106%);
+}
+
+.filter-insane{
+  filter: invert(54%) sepia(54%) saturate(1106%) hue-rotate(299deg) brightness(102%) contrast(102%);
+}
+
+.filter-extra{
+  filter: invert(52%) sepia(93%) saturate(978%) hue-rotate(215deg) brightness(99%) contrast(110%);
+}
+
+.filter-extra-plus{
+  filter: invert(4%) sepia(8%) saturate(892%) hue-rotate(155deg) brightness(100%) contrast(92%);
+}
+
 
 #beatmap-main-bg{
   position: relative;
@@ -531,10 +558,8 @@ input[type="file"] {
   float: right;
 }
 
-.beatmap-button{
-  margin: 5px 0;
-  width: 100px;
-  padding: 5px;
+#beatmap-buttons  *{
+  margin: 3px 0;
 }
 
 .beatmap-diff{
@@ -544,6 +569,11 @@ input[type="file"] {
   display: inline-grid;
   align-items: center;
   padding: 4px;
+}
+
+.beatmap-diff-selected{
+  box-shadow: inset 0 0 2px 1px #8a2be3aa, 0 0 2px 1px #8a2be3aa;
+  background-color: #555555bb
 }
 
 .show-all-diffs{
@@ -567,13 +597,17 @@ input[type="file"] {
 
 /*-----------PROFILE-----------*/
 
-#profile-top-bg{
-  background-size: cover;
-  background-attachment: fixed;
+#profile-top-bg, #profile-main-bg{
   background-image: var(--background);
+  background-position: var(--background-offset);
+  background-attachment: fixed;
   background-repeat: no-repeat;
+  background-size: cover;
   background-color: #24242477;
   background-blend-mode: overlay;
+}
+
+#profile-top-bg{
   display: flex;
   align-items: center;
   height: 60px;
@@ -591,12 +625,6 @@ input[type="file"] {
 }
 
 #profile-main-bg{
-  background-size: cover;
-  background-attachment: fixed;
-  background-image: var(--background);
-  background-repeat: no-repeat;
-  background-color: #24242477;
-  background-blend-mode: overlay;
   padding: 20px;
   box-sizing: border-box;
   width: 100%;
@@ -733,17 +761,16 @@ input[type="file"] {
 }
 
 .score-pp{
-  width: 80px;
-  margin: 0 10px;
+  min-width: 75px;
+  margin: 0 5px;
   font-size: 21px;
   text-align: center;
 }
 
 .score-acc{
   text-align: center;
-  width: 80px;
+  min-width: 90px;
   margin: 0;
-  text-height: 0.5;
   font-size: 19px;
 }
 
@@ -761,4 +788,16 @@ input[type="file"] {
 .score-mods:hover img{
   margin-left: 3px;
   transition: 0.2s;
+}
+
+.scores-show{
+  width: 100px;
+  height: 30px;
+  margin-left: auto;
+  border: none;
+  cursor: pointer;
+}
+
+.scores-show:focus{
+  outline: none;
 }

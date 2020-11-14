@@ -2,39 +2,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="shortcut icon" href="~/favicon.ico">
-    <link rel="stylesheet" href="~/css/main.css">
-    <link rel="stylesheet" href="~/css/content-1.css">
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/content-1.css">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="~/js/global.js"></script>
-    <script type="text/javascript" src="~/js/settings.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/settings.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <meta charset="utf-8">
     <title>Himitsu</title>
-    <style>:root {--background: url(@ViewBag.Background);}</style>
+    <style>:root {
+      --background: url(@ViewBag.Background);
+      --background-offset: @ViewBag.Horizontal @ViewBag.Vertical;
+    }</style>
 </head>
 
 <header id="header">
     <div id="header-top">
-        <a title="Открыть меню"><img src="~/resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()" /></a>
+        <a title="Открыть меню"><img src="../resources/header/logo.png" href="" id="header-logo" onmousedown="headerLogoButton()" /></a>
         <div id="header-profile-container">
         </div>
         @{ if (Context.Session.Keys.Contains("userid"))
-            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="~/resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
-        <a href="/" class="header-button-a"><img src="~/resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
-        <a href="/leaderboard" class="header-button-a"><img src="~/resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
-        <a href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="~/resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
+            { <a href="/u/@Context.Session.GetInt32("userid")" class="header-button-a"><img src="../resources/header/user.svg" class="header-button" /><text class="header-button-text">Профиль</text></a> } }
+        <a href="/" class="header-button-a"><img src="../resources/header/home-button.png" class="header-button" /><text class="header-button-text">Главная</text></a>
+        <a href="/leaderboard" class="header-button-a"><img src="../resources/header/leaderboard-button.png" class="header-button" /><text class="header-button-text">Рекорды</text></a>
+        <a target="_blank" href="https://hentai.ninja/beatmaps" class="header-button-a"><img src="../resources/header/library-button.png" class="header-button" /><text class="header-button-text">Библиотека</text></a>
     </div>
     <div id="header-bottom">
-        <a href="/about" class="header-button-a"><img src="~/resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
-        <a href="/settings" class="header-button-a"><img src="~/resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
+        <a href="/about" class="header-button-a"><img src="../resources/header/about.png" class="header-button" /><text class="header-button-text">О&nbsp;сервере</text></a>
+        <a href="/settings" class="header-button-a"><img src="../resources/header/settings.png" class="header-button" /><text class="header-button-text">Настройки</text></a>
         @{ if (Context.Session.Keys.Contains("userid"))
-            { <a href="/logout" class="header-button-a"><img src="~/resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
+            { <a href="/logout" class="header-button-a"><img src="../resources/header/logout.png" class="header-button" /><text class="header-button-text">Выйти</text></a> } }
     </div>
 </header>
 
 
-<body onload="fill(@ViewBag.DB.favourite_relax, @ViewBag.DB.favourite_mode, @ViewBag.DB.play_style), selectedDevice(), selectors(), displayContent()">
+<body onload="fill(@ViewBag.DB.favourite_relax, @ViewBag.DB.favourite_mode, @ViewBag.DB.play_style), selectedDevice(), selectors(), enterBlocker(), displayContent()">
     <div id="content" class="content">
         <div class="panel">
 
@@ -58,7 +61,7 @@
             <div class="base-container">
                 <form method="post">
                     <h2>Игровой режим</h2>
-                    <div class="select-box" style="height: 36px">
+                    <div class="select-box">
 
                         <div class="custom-select" style="width:175px;">
                             <select name="relax" id="osuSettingMode">
@@ -85,13 +88,13 @@
                     <input type="number" value="@ViewBag.DB.play_style" name="style" style="display: none">
                     <div style="display: inline-flex" id="device">
                         <div class="select-check">Мышь<input type="checkbox" value="1" oninput="selectedDevice()"></div>
-                        <div class="select-check">Клавиатура<input type="checkbox" value="2" oninput="selectedDevice()"></div>
-                        <div class="select-check">Графически планшет<input type="checkbox" value="4" oninput="selectedDevice()"></div>
+                        <div class="select-check">Графически планшет<input type="checkbox" value="2" oninput="selectedDevice()"></div>
+                        <div class="select-check">Клавиатура<input type="checkbox" value="4" oninput="selectedDevice()"></div>
                         <div class="select-check">Сенсорный экран<input type="checkbox" value="8" oninput="selectedDevice()"></div>
                     </div>
                     <div class="hor-line"></div>
 
-                    <input class="button-cyan submit white-text" type="submit" value="Сохранить">
+                    <input class="button standard-button button-cyan" type="submit" value="Сохранить">
                 </form>
             </div>
         </div>
