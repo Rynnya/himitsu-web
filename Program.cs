@@ -84,7 +84,7 @@ namespace Himitsu
             if (!ctx.Session.Keys.Contains("userid"))
                 return true;
             long priv = _db.Query("users").Select("privileges").Where("id", ctx.Session.GetInt32("userid")).First().privileges;
-            if (priv < Convert.ToInt64(privileges))
+            if (priv < Convert.ToInt64(privileges) && priv != Convert.ToInt64(UserPrivileges.Pending))
                 return true;
             return false;
         }
@@ -105,12 +105,10 @@ namespace Himitsu
         }
         public static void setCookie(QueryFactory db, HttpContext req, int user_id)
         {
-            string token;
-            try { token = db.Query("identity_tokens").Select("token").Where("userid", user_id).First().token; }
-            catch { token = null; }
+            dynamic token = db.Query("identity_tokens").Select("token").Where("userid", user_id).FirstOrDefault();
             if (token != null)
             {
-                addCookie(req, "y", token, 24 * 30 * 6);
+                addCookie(req, "y", token.token, 24 * 30 * 6);
                 return;
             }
             else
@@ -118,8 +116,9 @@ namespace Himitsu
                 while (true)
                 {
                     token = EncryptProvider.Sha256(GenerateString(30));
-                    try { _ = db.Query("identity_tokens").Select("token").Where("token", token).First().token; }
-                    catch { break; }
+                    dynamic check = db.Query("identity_tokens").Select("token").Where("token", token).FirstOrDefault();
+                    if (check == null)
+                        break;
                 }
                 db.Query("identity_tokens").Insert(new { userid = user_id, token });
                 addCookie(req, "y", token, 24 * 30 * 6);

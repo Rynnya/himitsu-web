@@ -23,9 +23,9 @@ namespace Himitsu.Pages
                 {
                     return View("error404");
                 }
-                string user = null;
-                try { user = _db.Query("users").Select("username").Where("id", id).First().username; }
-                catch { return View("error404"); }
+                dynamic user = _db.Query("users").Select("username").Where("id", id).FirstOrDefault();
+                if (user == null)
+                    return View("error404");
                 var http = new HttpClient();
                 string data;
                 try { data = http.GetStringAsync($"https://api.himitsu.ml/api/v1/users/full?id={id}").Result; }

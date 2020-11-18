@@ -92,8 +92,9 @@ namespace Himitsu.Views.settings
             ViewBag.Horizontal = bg[1];
             ViewBag.Vertical = bg[2];
             ViewBag.Userpage = (string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).First().userpage_content;
-            try { ViewBag.Encoded = new HtmlContentBuilder().AppendHtml(Utility.ParseBB((string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).First().userpage_content)); }
-            catch { ViewBag.Encoded = null; }
+            dynamic userpage = new HtmlContentBuilder().AppendHtml(Utility.ParseBB((string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).FirstOrDefault()));
+            if (userpage != null)
+                ViewBag.Encoded = userpage.userpage_content;
             return View();
         }
 

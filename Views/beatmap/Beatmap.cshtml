@@ -1,6 +1,26 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @{
-    var status = "";
+    string status, mode, diff;
+    diff = ViewBag.Beatmap["DifficultyRating"];
+    diff = diff.Substring(0, 4);
+    switch (Convert.ToInt32(ViewBag.Mode))
+    {
+        case 0:
+            mode = "osu!";
+            break;
+        case 1:
+            mode = "osu!taiko";
+            break;
+        case 2:
+            mode = "osu!ctb";
+            break;
+        case 3:
+            mode = "osu!mania";
+            break;
+        default:
+            mode = "osu!";
+            break;
+    }
     switch (Convert.ToInt32(ViewBag.Status))
     {
         case -2:
@@ -32,6 +52,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta property="og:title" content="@ViewBag.Artist - @ViewBag.Title | osu!Himitsu" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://himitsu.ml/b/@ViewBag.Beatmap["BeatmapID"]" />
+    <meta property="og:image" content="https://himitsu.ml/64.png" />
+    <meta property="og:description" content="@status @mode beatmap by @ViewBag.Artist
+          @diff ⭐ @ViewBag.Beatmap["BPM"] 🎶
+          CS @ViewBag.Beatmap["CS"] | AR @ViewBag.Beatmap["AR"] | OD @ViewBag.Beatmap["OD"] | HP @ViewBag.Beatmap["HP"]" />
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#d249e6">
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/content-1.css">
@@ -126,7 +155,7 @@
                     </div>
                     <script>
                         var beatmapSetID = @ViewBag.BeatmapSetID;
-                        var beatmapID = @ViewBag.BeatmapID;
+                        var beatmapID = @ViewBag.Beatmap["BeatmapID"];
                         var jsonData = JSON.parse(`@ViewBag.Set`);
                         initUpdate(jsonData);
                     </script>

@@ -32,7 +32,6 @@ namespace Himitsu.Views.beatmap
     public class beatmapController : Controller
     {
         public HttpClient http = new HttpClient();
-        public string data;
         private readonly QueryFactory _db;
 
         public beatmapController(QueryFactory db)
@@ -42,21 +41,26 @@ namespace Himitsu.Views.beatmap
         public IActionResult Beatmap(ulong id)
         {
             if (string.IsNullOrEmpty(id.ToString())) return View("error404");
-            try { ViewBag.Status = (int)_db.Query("beatmaps").Where("beatmap_id", id).Select("ranked").First().ranked; }
-            catch { Console.WriteLine("WARN | ERR | MySQL panic! Beatmap ranking is null!"); ViewBag.Status = null; }
+            dynamic rank = _db.Query("beatmaps").Where("beatmap_id", id).Select("ranked").FirstOrDefault();
+            if (rank != null)
+                rank = rank.ranked;
 
+            string data;
             try { data = http.GetStringAsync($"http://storage.ripple.moe/api/b/{id}").Result; } catch { return View("error404"); }
-            ViewBag.BeatmapID = JToken.Parse(data)["BeatmapID"];
-
-            try { data = http.GetStringAsync($"http://storage.ripple.moe/api/s/{JToken.Parse(data)["ParentSetID"]}").Result; } catch { return View("error404"); }
             var token = JToken.Parse(data);
+            ViewBag.Beatmap = token;
+            ViewBag.Mode = token["Mode"];
 
+            try { data = http.GetStringAsync($"http://storage.ripple.moe/api/s/{token["ParentSetID"]}").Result; } catch { return View("error404"); }
+            token = JToken.Parse(data);
+
+            ViewBag.Status = rank;
             ViewBag.HasVideo = Convert.ToBoolean(token["HasVideo"]);
             ViewBag.BeatmapSetID = token["SetID"];
             ViewBag.Title = token["Title"];
             ViewBag.Artist = token["Artist"];
             ViewBag.Creator = token["Creator"];
-            var beatmap = JsonConvert.DeserializeObject<List<BeatmapData>>(JToken.Parse(data)["ChildrenBeatmaps"].ToString());
+            var beatmap = JsonConvert.DeserializeObject<List<BeatmapData>>(token["ChildrenBeatmaps"].ToString());
             var beatmapSort = beatmap.OrderBy(x => x.DifficultyRating);
             var set = JsonConvert.SerializeObject(beatmapSort);
             ViewBag.Set = new HtmlContentBuilder().AppendHtml(set);
@@ -66,18 +70,22 @@ namespace Himitsu.Views.beatmap
         public IActionResult Set(ulong id)
         {
             if (string.IsNullOrEmpty(id.ToString())) return View("error404");
-            try { ViewBag.Status = (int)_db.Query("beatmaps").Where("beatmapset_id", id).Select("ranked").First().ranked; }
-            catch { Console.WriteLine("WARN | ERR | MySQL panic! Beatmap ranking is null!"); ViewBag.Status = null; }
+            dynamic rank = _db.Query("beatmaps").Where("beatmapset_id", id).Select("ranked").FirstOrDefault();
+            if (rank != null)
+                rank = rank.ranked;
 
+            string data;
             try { data = http.GetStringAsync($"http://storage.ripple.moe/api/s/{id}").Result; } catch { return View("error404"); }
             var token = JToken.Parse(data);
 
+            ViewBag.Status = rank;
             ViewBag.HasVideo = Convert.ToBoolean(token["HasVideo"]);
             ViewBag.BeatmapSetID = token["SetID"];
             ViewBag.Title = token["Title"];
             ViewBag.Artist = token["Artist"];
             ViewBag.Creator = token["Creator"];
-            ViewBag.BeatmapID = JToken.Parse(data)["ChildrenBeatmaps"][0]["BeatmapID"];
+            ViewBag.Beatmap = JToken.Parse(data)["ChildrenBeatmaps"][0];
+            ViewBag.Mode = JToken.Parse(data)["ChildrenBeatmaps"][0]["Mode"];
             var beatmap = JsonConvert.DeserializeObject<List<BeatmapData>>(JToken.Parse(data)["ChildrenBeatmaps"].ToString());
             var beatmapSort = beatmap.OrderBy(x => x.DifficultyRating);
             var set = JsonConvert.SerializeObject(beatmapSort);

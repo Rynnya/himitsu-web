@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @{ var nullable = "-"; var culture = new System.Globalization.CultureInfo("ru-RU");
-    var playstyle = ""; switch (Convert.ToInt32(ViewBag.Data["play_style"])) { default: playstyle = ""; break;
+    string playstyle, mode; switch (Convert.ToInt32(ViewBag.Data["play_style"])) { default: playstyle = ""; break;
         case 1: playstyle = "Играет с мышью"; break;
         case 2: playstyle = "Играет с планшетом"; break;
         case 3: playstyle = "Играет с мышкой и планшетом"; break;
@@ -12,10 +12,35 @@
         case 10: playstyle = "Играет с тачскрином и планшетом"; break;
         case 12: playstyle = "Играет с клавиатурой и тачскрином"; break;
     }
+    switch (Convert.ToInt32(ViewBag.Data["favourite_mode"]))
+    {
+        case 0:
+            mode = "std";
+            break;
+        case 1:
+            mode = "taiko";
+            break;
+        case 2:
+            mode = "ctb";
+            break;
+        case 3:
+            mode = "mania";
+            break;
+        default:
+            mode = "std";
+            break;
+    }
 }
 <!DOCTYPE html>
 <html>
 <head>
+    <meta property="og:title" content="@ViewBag.Data["username"]'s profile | osu!Himitsu" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://himitsu.ml/u/@ViewBag.Data["id"]" />
+    <meta property="og:image" content="https://himitsu.ml/64.png" />
+    <meta property="og:description" content="@ViewBag.Data["username"] - игрок в osu!@mode с @ViewBag.Data[mode]["pp"]pp" />
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#d249e6">
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/content-1.css">
@@ -25,10 +50,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <meta charset="utf-8">
     <title>Himitsu</title>
-    <style>:root {
+    <style>
+:root {
       --background: url(@ViewBag.Background);
       --background-offset: @ViewBag.Horizontal @ViewBag.Vertical;
-    }</style>
+}</style>
 </head>
 
 <header id="header">
