@@ -30,7 +30,7 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
 
-            string check = _db.Query("identity_tokens").SelectRaw("SELECT token FROM identity_tokens WHERE token = @token AND userid = @user_id", new { token = Request.Cookies["y"], user_id = u }).FirstOrDefault();
+            string check = _db.Query("identity_tokens").SelectRaw("SELECT token FROM identity_tokens WHERE token = @token AND userid = @user_id", new { token = Request.Cookies["y"], user_id = u }).FirstOrDefault().token;
             if (check != null)
             {
                 ViewBag.Error = "Зачем ты это делаешь?";
@@ -88,14 +88,14 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
 
-            dynamic check = _db.Query("users").Select("username_safe").Where("username_safe", username.ToString().ToLowerInvariant().Replace(" ", "_")).FirstOrDefault();
+            dynamic check = _db.Query("users").Select("username_safe").Where("username_safe", username.ToString().ToLowerInvariant().Replace(" ", "_")).FirstOrDefault().username_safe;
             if (check != null)
             {
                 ViewBag.Error = "Такой пользователь уже существует!";
                 return View("error403");
             }
             
-            check = _db.Query("users").Select("email").Where("email", mail).FirstOrDefault();
+            check = _db.Query("users").Select("email").Where("email", mail).FirstOrDefault().email;
             if (check != null)
             {
                 ViewBag.Error = "Эта почта уже занята!";

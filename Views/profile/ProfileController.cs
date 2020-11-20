@@ -23,7 +23,7 @@ namespace Himitsu.Pages
                 {
                     return View("error404");
                 }
-                dynamic user = _db.Query("users").Select("username").Where("id", id).FirstOrDefault();
+                dynamic user = _db.Query("users").Select("username").Where("id", id).FirstOrDefault().username;
                 if (user == null)
                     return View("error404");
                 var http = new HttpClient();

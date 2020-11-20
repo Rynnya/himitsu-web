@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -105,7 +104,7 @@ namespace Himitsu
         }
         public static void setCookie(QueryFactory db, HttpContext req, int user_id)
         {
-            dynamic token = db.Query("identity_tokens").Select("token").Where("userid", user_id).FirstOrDefault();
+            dynamic token = db.Query("identity_tokens").Select("token").Where("userid", user_id).FirstOrDefault().token;
             if (token != null)
             {
                 addCookie(req, "y", token.token, 24 * 30 * 6);
@@ -116,7 +115,7 @@ namespace Himitsu
                 while (true)
                 {
                     token = EncryptProvider.Sha256(GenerateString(30));
-                    dynamic check = db.Query("identity_tokens").Select("token").Where("token", token).FirstOrDefault();
+                    dynamic check = db.Query("identity_tokens").Select("token").Where("token", token).FirstOrDefault().token;
                     if (check == null)
                         break;
                 }

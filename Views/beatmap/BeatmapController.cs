@@ -41,7 +41,7 @@ namespace Himitsu.Views.beatmap
         public IActionResult Beatmap(ulong id)
         {
             if (string.IsNullOrEmpty(id.ToString())) return View("error404");
-            dynamic rank = _db.Query("beatmaps").Where("beatmap_id", id).Select("ranked").FirstOrDefault();
+            dynamic rank = _db.Query("beatmaps").Where("beatmap_id", id).Select("ranked").FirstOrDefault().ranked;
             if (rank != null)
                 rank = rank.ranked;
 
@@ -70,7 +70,7 @@ namespace Himitsu.Views.beatmap
         public IActionResult Set(ulong id)
         {
             if (string.IsNullOrEmpty(id.ToString())) return View("error404");
-            dynamic rank = _db.Query("beatmaps").Where("beatmapset_id", id).Select("ranked").FirstOrDefault();
+            dynamic rank = _db.Query("beatmaps").Where("beatmapset_id", id).Select("ranked").FirstOrDefault().ranked;
             if (rank != null)
                 rank = rank.ranked;
 
