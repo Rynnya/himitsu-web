@@ -107,7 +107,7 @@ namespace Himitsu
             dynamic token = db.Query("identity_tokens").Select("token").Where("userid", user_id).FirstOrDefault().token;
             if (token != null)
             {
-                addCookie(req, "y", token.token, 24 * 30 * 6);
+                addCookie(req, "y", token, 24 * 30 * 6);
                 return;
             }
             else
