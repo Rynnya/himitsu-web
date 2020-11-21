@@ -42,9 +42,6 @@ namespace Himitsu.Views.beatmap
         {
             if (string.IsNullOrEmpty(id.ToString())) return View("error404");
             dynamic rank = _db.Query("beatmaps").Where("beatmap_id", id).Select("ranked").FirstOrDefault().ranked;
-            if (rank != null)
-                rank = rank.ranked;
-
             string data;
             try { data = http.GetStringAsync($"http://storage.ripple.moe/api/b/{id}").Result; } catch { return View("error404"); }
             var token = JToken.Parse(data);
@@ -71,9 +68,6 @@ namespace Himitsu.Views.beatmap
         {
             if (string.IsNullOrEmpty(id.ToString())) return View("error404");
             dynamic rank = _db.Query("beatmaps").Where("beatmapset_id", id).Select("ranked").FirstOrDefault().ranked;
-            if (rank != null)
-                rank = rank.ranked;
-
             string data;
             try { data = http.GetStringAsync($"http://storage.ripple.moe/api/s/{id}").Result; } catch { return View("error404"); }
             var token = JToken.Parse(data);
