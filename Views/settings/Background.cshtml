@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http;
+@model Himitsu.Models.Background
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,8 +13,8 @@
     <meta charset="utf-8">
     <title>Himitsu</title>
     <style>:root {
-        --background: url(@ViewBag.Background);
-        --background-offset: @ViewBag.Horizontal @ViewBag.Vertical;
+        --background: url(@Model.Link);
+        --background-offset: @Model.Horizontal @Model.Vertical;
       }
     </style>
 </head>
@@ -77,7 +78,7 @@
                   </div>
                   <div class="small-separator"></div>
                   <div style="display: flex; align-items: center; width: 100%;">
-                      <input name="back" style="width: 100%; margin-right: 10px;" type="text" id="setting-bg-input" value="@ViewBag.Background" class="input-text">
+                      <input name="back" style="width: 100%; margin-right: 10px;" type="text" id="setting-bg-input" value="@Model.Link" class="input-text">
                       <div onclick="userpageBg()" style="float: right" class="button standard-button button-pink">Обновить</div>
                   </div>
                   <div class="hor-line"></div>
@@ -87,9 +88,9 @@
                   <div class="demo">
                     <div class="demo-panel">
                       Горизонтальное смещение
-                      <input type="range" value="@ViewBag.Horizontal" name="horiz" oninput="positionBg()">
+                      <input type="range" value="@Model.Horizontal" name="horiz" oninput="positionBg()">
                       Вертикальное смещение
-                      <input type="range" value="@ViewBag.Vertical" name="vert" oninput="positionBg()">
+                      <input type="range" value="@Model.Vertical" name="vert" oninput="positionBg()">
                       <center><div class="button button-orange" onclick="demo(0)">Применить</div></center>
                     </div>
                   </div>
@@ -97,7 +98,7 @@
                   <div class="hor-line"></div>
                   <div class="button button-orange" style="width: 150px; float: right" onclick="demo(1), positionBg()">Расположение...</div>
                   <input class="button standard-button button-cyan" type="submit" value="Сохранить">
-                  <input class="button standard-button button-gray" type="reset" value="Очистить" onclick="resetBg('@ViewBag.Background')">
+                  <input class="button standard-button button-gray" type="reset" value="Очистить" onclick="resetBg('@Model.Link')">
                 </form>
             </div>
         </div>

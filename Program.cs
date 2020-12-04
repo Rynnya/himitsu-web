@@ -44,23 +44,11 @@ namespace Himitsu
     }
     public class Utility
     {
-        public static string[] Background(QueryFactory db, int id)
-        {
-            try {
-                dynamic done = db.Query("users_stats").Select("background_site", "horizontal", "vertical").Where("id", id).First();
-                if (string.IsNullOrEmpty(done.background_site))
-                    return new string[] { "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif", done.horizontal + "%", done.vertical + "%" };
-                return new string[] { done.background_site, done.horizontal + "%", done.vertical + "%" };
-            }
-            catch {
-                return new string[] { "https://i.pinimg.com/originals/f1/63/11/f16311fd0c32786525f471c685bc516e.gif", "0%", "0%" };
-            }
-        }
         public static string ParseBB(string code)
         {
             if (string.IsNullOrEmpty(code))
                 return string.Empty;
-            var bbcode = new BbCodeParser(Q101.BbCodeNetCore.Enums.ErrorMode.ErrorFree, null, new[]
+            BbCodeParser bbcode = new BbCodeParser(Q101.BbCodeNetCore.Enums.ErrorMode.ErrorFree, null, new[]
                 {
                     new BbTag("b", "<b>", "</b>", true, true),
                     new BbTag("url", "<a href=\"${href}\" class=\"bbcode-url\">", "</a>", new BbAttribute("href", ""), new BbAttribute("href", "href")),
@@ -95,9 +83,9 @@ namespace Himitsu
         }
         public static void setCountry(QueryFactory db, HttpContext req, int user_id)
         {
-            var url = $"https://ip.zxq.co/{req.Connection.RemoteIpAddress}/country";
-            var raw = WebRequest.Create(url);
-            var stream = new StreamReader(raw.GetResponse().GetResponseStream()).ReadToEnd();
+            string url = $"https://ip.zxq.co/{req.Connection.RemoteIpAddress}/country";
+            WebRequest raw = WebRequest.Create(url);
+            string stream = new StreamReader(raw.GetResponse().GetResponseStream()).ReadToEnd();
             if (stream == "" || stream.Length != 2)
                 return;
             db.Query("users_stats").Update(new { country = stream.ToString(), id = user_id });
@@ -125,7 +113,7 @@ namespace Himitsu
         }
         public static void addCookie(HttpContext req, string name, string data, int time)
         {
-            var cookieOptions = new CookieOptions
+            CookieOptions cookieOptions = new CookieOptions
             {
                 Expires = DateTime.Now.AddHours(time)
             };

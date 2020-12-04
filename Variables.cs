@@ -13,9 +13,9 @@ namespace Himitsu.Variable
         public string Connection { get; }
         public Variables()
         {
-            var builder = new ConfigurationBuilder();
+            ConfigurationBuilder builder = new ConfigurationBuilder();
             builder.AddJsonFile(File, true);
-            var data = builder.Build();
+            IConfigurationRoot data = builder.Build();
             MySQLAddress = data[nameof(MySQLAddress)];
             DBUsername = data[nameof(DBUsername)];
             Password = data[nameof(Password)];

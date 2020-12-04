@@ -86,9 +86,9 @@ namespace Himitsu
             {
                 if (!context.Session.Keys.Contains("userid") && !string.IsNullOrEmpty(context.Request.Cookies["rt"]) && Utility.EscapeDirectories(context.Request) && !context.Session.Keys.Contains("login"))
                 {
-                    var db = new QueryFactory(new MySqlConnection(var.Connection), new MySqlCompiler());
+                    QueryFactory db = new QueryFactory(new MySqlConnection(var.Connection), new MySqlCompiler());
                     Console.WriteLine($"LOG  | XXX | Trying autologin by using cookies");
-                    var data = db.Select("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", new { token = context.Request.Cookies["rt"] }).First();
+                    dynamic data = db.Select("SELECT u.id, u.password_md5, t.token FROM users u LEFT JOIN users_stats s ON s.id = u.id LEFT JOIN tokens t on t.user = u.id WHERE t.token = @token LIMIT 1", new { token = context.Request.Cookies["rt"] }).First();
                     int id = data.id;
                     Console.WriteLine($"LOG  | XXX | Successful login for user {id}");
                     Utility.setCookie(db, context, id);

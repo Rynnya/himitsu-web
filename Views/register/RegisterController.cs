@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using NETCore.Encrypt;
 using SqlKata.Execution;
+using Microsoft.AspNetCore.Http;
 
 namespace Himitsu.Views.register
 {
@@ -23,7 +24,7 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
             ViewBag.User = u;
-            var s = HttpContext.Session;
+            ISession s = HttpContext.Session;
             if (s.Keys.Contains("userid"))
             {
                 ViewBag.Error = "Ты здесь уже был.";
@@ -75,7 +76,7 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
 
-            foreach (var i in forbiddenUsernames)
+            foreach (string i in forbiddenUsernames)
                 if (username.ToString().ToLowerInvariant() == i)
                 {
                     ViewBag.Error = "Этот ник запрещен.";
@@ -102,7 +103,7 @@ namespace Himitsu.Views.register
                 return View("error403");
             }
 
-            var hash = BCrypt.Net.BCrypt.HashPassword(EncryptProvider.Md5(password).ToLowerInvariant(), 10);
+            string hash = BCrypt.Net.BCrypt.HashPassword(EncryptProvider.Md5(password).ToLowerInvariant(), 10);
 
             _db.Query("users").Insert(new { username, username_safe = username.ToString().ToLowerInvariant(), password_md5 = hash, email = mail, register_datetime = DateTime.UnixEpoch, privileges = UserPrivileges.Pending });
 

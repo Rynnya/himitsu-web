@@ -6,8 +6,9 @@ using System;
 using System.Linq;
 using System.Drawing;
 using Microsoft.AspNetCore.Html;
-using System.Net;
+using Himitsu.Models;
 using NETCore.Encrypt;
+using Himitsu.Models;
 
 namespace Himitsu.Views.settings
 {
@@ -34,12 +35,9 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
-            ViewBag.DB = _db.Query("users_stats").Select("play_style", "favourite_mode", "favourite_relax").Where("id", HttpContext.Session.GetInt32("userid")).First();
-            return View();
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.DB = _db.Query("users_stats").Select("play_style", "favourite_mode", "favourite_relax").Where("id", HttpContext.Session.GetInt32("userid")).FirstOrDefault();
+            return View(model);
         }
 
         [HttpPost("profile")]
@@ -47,16 +45,13 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
             ViewBag.DB = _db.Query("users_stats").Select("play_style", "favourite_mode", "favourite_relax").Where("id", HttpContext.Session.GetInt32("userid")).First();
             if (style > 15 || style < 0)
                 return Redirect("/settings/profile");
             _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { play_style = (short)style, favourite_mode = mode, favourite_relax = relax });
             ViewBag.Success = "Настройки успешно изменены!";
-            return View();
+            return View(model);
         }
 
         [HttpGet("avatar")]
@@ -64,11 +59,8 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
-            return View();
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            return View(model);
         }
 
         [HttpPost("avatar")]
@@ -87,15 +79,12 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
-            ViewBag.Userpage = (string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).First().userpage_content;
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            ViewBag.Userpage = (string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).FirstOrDefault().userpage_content;
             dynamic userpage = new HtmlContentBuilder().AppendHtml(Utility.ParseBB((string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).FirstOrDefault().userpage_content));
             if (userpage != null)
                 ViewBag.Encoded = userpage.userpage_content;
-            return View();
+            return View(model);
         }
 
         [HttpPost("userpage")]
@@ -113,22 +102,16 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
-            return View();
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            return View(model);
         }
 
         [HttpPost("background")]
         public IActionResult Background(string back, int horiz, int vert)
         {
             _db.Query("users_stats").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { background_site = back, horizontal = horiz, vertical = vert });
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
-            return View();
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            return View(model);
         }
 
         [HttpGet("scoreboard")]
@@ -136,13 +119,8 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            ViewBag.r = (int)_db.Query("users").Select("is_relax").Where("id", HttpContext.Session.GetInt32("userid")).First().is_relax;
-            ViewBag.q = _db.Query("users_preferences").Where("id", HttpContext.Session.GetInt32("userid")).First();
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
-            return View();
+            Scoreboard score = new Scoreboard(_db, (int)HttpContext.Session.GetInt32("userid"));
+            return View(score);
         }
 
         [HttpPost("scoreboard")]
@@ -167,11 +145,8 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
-            return View();
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
+            return View(model);
         }
 
         [HttpPost("password")]
@@ -179,24 +154,21 @@ namespace Himitsu.Views.settings
         {
             if (!HttpContext.Session.Keys.Contains("userid"))
                 return RedirectToAction("login", "main");
-            string[] bg = Utility.Background(_db, (int)HttpContext.Session.GetInt32("userid"));
-            ViewBag.Background = bg[0];
-            ViewBag.Horizontal = bg[1];
-            ViewBag.Vertical = bg[2];
+            Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
             if (!BCrypt.Net.BCrypt.Verify(EncryptProvider.Md5(old_pass).ToLowerInvariant(), _db.Query("users").Select("password_md5").Where("id", HttpContext.Session.GetInt32("userid")).First().password_md5))
             {
                 ViewBag.QuickError = "Неправильный пароль.";
-                return View();
+                return View(model);
             }
             if (old_pass == new_pass)
             {
-                ViewBag.QuickError = "Почему? Зачем?";   
-                return View();
+                ViewBag.QuickError = "Почему? Зачем?";
+                return View(model);
             }
             if (new_pass != check)
             {
                 ViewBag.QuickError = "Вы ввели два разных пароля.";
-                return View();
+                return View(model);
             }
             _db.Query("users").Where("id", HttpContext.Session.GetInt32("userid")).Update(new { password_md5 = BCrypt.Net.BCrypt.HashPassword(EncryptProvider.Md5(new_pass)) });
             HttpContext.Session.SetString("pw", BCrypt.Net.BCrypt.HashPassword(EncryptProvider.Md5(new_pass)));

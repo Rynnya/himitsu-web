@@ -51,7 +51,7 @@ namespace Himitsu.Pages
             Data data = new Data();
             string user_safe = username.ToString().ToLowerInvariant().Replace(" ", "_");
             dynamic user_data = _db.Select("SELECT u.id, u.password_md5, u.username, s.country, u.privileges FROM users u LEFT JOIN users_stats s ON s.id = u.id WHERE u.username_safe = @user_safe LIMIT 1", new { user_safe }).FirstOrDefault();
-            if (user_data.id == null)
+            if (user_data == null)
             {
                 ViewBag.Error = "Пользователя с таким ником не существует!";
                 return View("error403");
@@ -69,7 +69,7 @@ namespace Himitsu.Pages
                 return View("error403");
             }
 
-            var s = HttpContext.Session;
+            ISession s = HttpContext.Session;
             if (UserPrivileges.Pending == data.Privileges)
             {
                 Utility.setCookie(_db, HttpContext, data.ID);
@@ -91,14 +91,14 @@ namespace Himitsu.Pages
         }
         public void afterLogin(int user_id, HttpContext ctx, string country)
         {
-            var s = GenerateToken(user_id);
+            string s = GenerateToken(user_id);
             Utility.addCookie(ctx, "rt", EncryptProvider.Md5(s).ToLowerInvariant(), 24 * 30 * 1);
             if (country == "XX")
                 Utility.setCountry(_db, HttpContext, user_id);
         }
         public string GenerateToken(int user_id)
         {
-            var rs = Utility.GenerateString(32);
+            string rs = Utility.GenerateString(32);
             _db.Query("tokens").Insert(new { user = user_id, privileges = '0', description = HttpContext.Connection.RemoteIpAddress.ToString(), token = EncryptProvider.Md5(rs).ToLowerInvariant(), last_updated = DateTime.UnixEpoch });
             return rs;
         }
@@ -119,7 +119,7 @@ namespace Himitsu.Pages
         [HttpGet("logout")]
         public IActionResult Logout()
         {
-            var ctx = HttpContext.Session;
+            ISession ctx = HttpContext.Session;
             ctx.Clear();
             ctx.SetInt32("login", 0);
             ctx.CommitAsync();

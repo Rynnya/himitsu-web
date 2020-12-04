@@ -1,44 +1,38 @@
 ﻿@using Microsoft.AspNetCore.Http;
-@{ var nullable = "-"; var culture = new System.Globalization.CultureInfo("ru-RU");
-    string playstyle, mode; switch (Convert.ToInt32(ViewBag.Data["play_style"])) { default: playstyle = ""; break;
-        case 1: playstyle = "Играет с мышью"; break;
-        case 2: playstyle = "Играет с планшетом"; break;
-        case 3: playstyle = "Играет с мышкой и планшетом"; break;
-        case 4: playstyle = "Играет с клавиатурой"; break;
-        case 5: playstyle = "Играет с клавиатурой и мышкой"; break;
-        case 6: playstyle = "Играет с клавиатурой и планшетом"; break;
-        case 8: playstyle = "Играет с тачскрином"; break;
-        case 9: playstyle = "Играет с тачскрином и мышкой"; break;
+@model Himitsu.Models.Profile
+@{  string nullable = "-"; System.Globalization.CultureInfo culture = new System.Globalization.CultureInfo("ru-RU");
+    string playstyle, mode; 
+    switch (Model.PlayStyle)
+    { 
+        default: playstyle = ""; break;
+        case 1:  playstyle = "Играет с мышью"; break;
+        case 2:  playstyle = "Играет с планшетом"; break;
+        case 3:  playstyle = "Играет с мышкой и планшетом"; break;
+        case 4:  playstyle = "Играет с клавиатурой"; break;
+        case 5:  playstyle = "Играет с клавиатурой и мышкой"; break;
+        case 6:  playstyle = "Играет с клавиатурой и планшетом"; break;
+        case 8:  playstyle = "Играет с тачскрином"; break;
+        case 9:  playstyle = "Играет с тачскрином и мышкой"; break;
         case 10: playstyle = "Играет с тачскрином и планшетом"; break;
         case 12: playstyle = "Играет с клавиатурой и тачскрином"; break;
     }
-    switch (Convert.ToInt32(ViewBag.Data["favourite_mode"]))
+    switch (Model.FavClassic)
     {
-        case 0:
-            mode = "std";
-            break;
-        case 1:
-            mode = "taiko";
-            break;
-        case 2:
-            mode = "ctb";
-            break;
-        case 3:
-            mode = "mania";
-            break;
-        default:
-            mode = "std";
-            break;
+        case 0:  mode = "std"; break;
+        case 1:  mode = "taiko"; break;
+        case 2:  mode = "ctb"; break;
+        case 3:  mode = "mania"; break;
+        default: mode = "std"; break;
     }
 }
 <!DOCTYPE html>
 <html>
 <head>
-    <meta property="og:title" content="@ViewBag.Data["username"]'s profile | osu!himitsu" />
+    <meta property="og:title" content="@Model.Username's profile | osu!himitsu" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://himitsu.ml/u/@ViewBag.Data["id"]" />
+    <meta property="og:url" content="https://himitsu.ml/u/@Model.Classic["id"]" />
     <meta property="og:image" content="https://himitsu.ml/64.png" />
-    <meta property="og:description" content="@ViewBag.Data["username"] - игрок в osu!@mode с @ViewBag.Data[mode]["pp"]pp" />
+    <meta property="og:description" content="@Model.Username - игрок в osu!@mode с @Model.Classic[mode]["pp"]pp" />
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#d249e6">
     <link rel="shortcut icon" href="../favicon.ico">
@@ -52,8 +46,8 @@
     <title>Himitsu</title>
     <style>
 :root {
-      --background: url(@ViewBag.Background);
-      --background-offset: @ViewBag.Horizontal @ViewBag.Vertical;
+      --background: url(@Model.Background.Link);
+      --background-offset: @Model.Background.Horizontal @Model.Background.Vertical;
 }</style>
 </head>
 
@@ -76,12 +70,12 @@
     </div>
 </header>
 
-<body onload="initJS(@ViewBag.Data["id"], @ViewBag.Data["favourite_relax"], @ViewBag.Data["favourite_mode"]), displayContent()">
+<body onload="initJS(@Model.ID, @Model.FavRelax, @Model.FavClassic), displayContent()">
     <div id="content" class="content">
         <div class="panel">
 
             <div id="profile-top-bg" class="white-text">
-                <img src="../resources/profile/profile-top-icon.svg" height="40px" /><text class="text-shadow-6">Профиль @ViewBag.Data["username"]</text>
+                <img src="../resources/profile/profile-top-icon.svg" height="40px" /><text class="text-shadow-6">Профиль @Model.Username</text>
             </div>
 
             <div class="mode-selector-panel">
@@ -102,7 +96,7 @@
 
             <div id="profile-main-bg" class="white-text">
                 <div id="profile-main-background">
-                    <img src="https://a.himitsu.ml/@ViewBag.Data["id"]" id="avatar" onclick="profileFullBg()" />
+                    <img src="https://a.himitsu.ml/@Model.ID" id="avatar" onclick="profileFullBg()" />
 
 
                     <div id="profile-tables">
@@ -115,20 +109,20 @@
                                 <div>
                                     <table style="margin-right: auto">
                                         <tr class="bold-text">
-                                            <td>@ViewBag.Data["std"]["pp"]pp</td>
-                                            <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["std"]["accuracy"]), 2)%</td>
+                                            <td>@Model.Classic["std"]["pp"]pp</td>
+                                            <td class="text-right">@Math.Round(Convert.ToDecimal(Model.Classic["std"]["accuracy"]), 2)%</td>
                                         </tr>
                                         <tr class="bold-text">
-                                            <td>#@{ if (ViewBag.Data["std"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["std"]["global_leaderboard_rank"]; } (Global)</td>
-                                            <td class="text-right">#@{ if (ViewBag.Data["std"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["std"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                            <td>#@{ if (Model.Classic["std"]["global_leaderboard_rank"] == null) @nullable else @Model.Classic["std"]["global_leaderboard_rank"]; } (Global)</td>
+                                            <td class="text-right">#@{ if (Model.Classic["std"]["country_leaderboard_rank"] == null) @nullable else @Model.Classic["std"]["country_leaderboard_rank"]; } (@Model.Classic["country"])</td>
                                         </tr>
                                         <tr>
                                             <td>Количество игр</td>
-                                            <td class="text-right">@ViewBag.Data["std"]["playcount"]</td>
+                                            <td class="text-right">@Model.Classic["std"]["playcount"]</td>
                                         </tr>
                                         <tr>
                                             <td>Время в игре</td>
-                                            <td class="text-right">@{ var time_std = Convert.ToUInt64(ViewBag.Data["std"]["play_time"]); var hours_std = time_std / 3600; var min_std = time_std % 3600 / 60; } @{@hours_std}ч @{@min_std}м</td>
+                                            <td class="text-right">@{ ulong time_std = Convert.ToUInt64(Model.Classic["std"]["play_time"]); ulong hours_std = time_std / 3600; ulong min_std = time_std % 3600 / 60; } @{@hours_std}ч @{@min_std}м</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">@playstyle</td>
@@ -137,19 +131,19 @@
                                     <table>
                                         <tr>
                                             <td>Всего очков</td>
-                                            <td class="text-right">@ViewBag.Data["std"]["total_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["std"]["total_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Рейтинговых очков</td>
-                                            <td class="text-right">@ViewBag.Data["std"]["ranked_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["std"]["ranked_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Всего попаданий</td>
-                                            <td class="text-right">@ViewBag.Data["std"]["total_hits"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["std"]["total_hits"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Реплеев просмотрено</td>
-                                            <td class="text-right">@ViewBag.Data["std"]["replays_watched"]</td>
+                                            <td class="text-right">@Model.Classic["std"]["replays_watched"]</td>
                                         </tr>
                                         <tr>
                                         </tr>
@@ -161,20 +155,20 @@
                                 <div>
                                     <table style="margin-right: auto">
                                         <tr class="bold-text">
-                                            <td>@ViewBag.Data["taiko"]["pp"]pp</td>
-                                            <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["taiko"]["accuracy"]), 2)%</td>
+                                            <td>@Model.Classic["taiko"]["pp"]pp</td>
+                                            <td class="text-right">@Math.Round(Convert.ToDecimal(Model.Classic["taiko"]["accuracy"]), 2)%</td>
                                         </tr>
                                         <tr class="bold-text">
-                                            <td>#@{ if (ViewBag.Data["taiko"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["taiko"]["global_leaderboard_rank"]; } (Global)</td>
-                                            <td class="text-right">#@{ if (ViewBag.Data["taiko"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["taiko"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                            <td>#@{ if (Model.Classic["taiko"]["global_leaderboard_rank"] == null) @nullable else @Model.Classic["taiko"]["global_leaderboard_rank"]; } (Global)</td>
+                                            <td class="text-right">#@{ if (Model.Classic["taiko"]["country_leaderboard_rank"] == null) @nullable else @Model.Classic["taiko"]["country_leaderboard_rank"]; } (@Model.Classic["country"])</td>
                                         </tr>
                                         <tr>
                                             <td>Количество игр</td>
-                                            <td class="text-right">@ViewBag.Data["taiko"]["playcount"]</td>
+                                            <td class="text-right">@Model.Classic["taiko"]["playcount"]</td>
                                         </tr>
                                         <tr>
                                             <td>Время в игре</td>
-                                            <td class="text-right">@{ var time_taiko = Convert.ToUInt64(ViewBag.Data["taiko"]["play_time"]); var hours_taiko = time_taiko / 3600; var min_taiko = time_taiko % 3600 / 60; } @{@hours_taiko}ч @{@min_taiko}м</td>
+                                            <td class="text-right">@{ ulong time_taiko = Convert.ToUInt64(Model.Classic["taiko"]["play_time"]); ulong hours_taiko = time_taiko / 3600; ulong min_taiko = time_taiko % 3600 / 60; } @{@hours_taiko}ч @{@min_taiko}м</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">@playstyle</td>
@@ -183,19 +177,19 @@
                                     <table>
                                         <tr>
                                             <td>Всего очков</td>
-                                            <td class="text-right">@ViewBag.Data["taiko"]["total_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["taiko"]["total_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Рейтинговых очков</td>
-                                            <td class="text-right">@ViewBag.Data["taiko"]["ranked_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["taiko"]["ranked_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Всего попаданий</td>
-                                            <td class="text-right">@ViewBag.Data["taiko"]["total_hits"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["taiko"]["total_hits"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Реплеев просмотрено</td>
-                                            <td class="text-right">@ViewBag.Data["taiko"]["replays_watched"]</td>
+                                            <td class="text-right">@Model.Classic["taiko"]["replays_watched"]</td>
                                         </tr>
                                         <tr>
                                         </tr>
@@ -207,20 +201,20 @@
                                 <div>
                                     <table style="margin-right: auto">
                                         <tr class="bold-text">
-                                            <td>@ViewBag.Data["ctb"]["pp"]pp</td>
-                                            <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["ctb"]["accuracy"]), 2)%</td>
+                                            <td>@Model.Classic["ctb"]["pp"]pp</td>
+                                            <td class="text-right">@Math.Round(Convert.ToDecimal(Model.Classic["ctb"]["accuracy"]), 2)%</td>
                                         </tr>
                                         <tr class="bold-text">
-                                            <td>#@{ if (ViewBag.Data["ctb"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["ctb"]["global_leaderboard_rank"]; } (Global)</td>
-                                            <td class="text-right">#@{ if (ViewBag.Data["ctb"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["ctb"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                            <td>#@{ if (Model.Classic["ctb"]["global_leaderboard_rank"] == null) @nullable else @Model.Classic["ctb"]["global_leaderboard_rank"]; } (Global)</td>
+                                            <td class="text-right">#@{ if (Model.Classic["ctb"]["country_leaderboard_rank"] == null) @nullable else @Model.Classic["ctb"]["country_leaderboard_rank"]; } (@Model.Classic["country"])</td>
                                         </tr>
                                         <tr>
                                             <td>Количество игр</td>
-                                            <td class="text-right">@ViewBag.Data["ctb"]["playcount"]</td>
+                                            <td class="text-right">@Model.Classic["ctb"]["playcount"]</td>
                                         </tr>
                                         <tr>
                                             <td>Время в игре</td>
-                                            <td class="text-right">@{ var time_ctb = Convert.ToUInt64(ViewBag.Data["ctb"]["play_time"]); var hours_ctb = time_ctb / 3600; var min_ctb = time_ctb % 3600 / 60; } @{@hours_ctb}ч @{@min_ctb}м</td>
+                                            <td class="text-right">@{ ulong time_ctb = Convert.ToUInt64(Model.Classic["ctb"]["play_time"]); ulong hours_ctb = time_ctb / 3600; ulong min_ctb = time_ctb % 3600 / 60; } @{@hours_ctb}ч @{@min_ctb}м</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">@playstyle</td>
@@ -229,19 +223,19 @@
                                     <table>
                                         <tr>
                                             <td>Всего очков</td>
-                                            <td class="text-right">@ViewBag.Data["ctb"]["total_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["ctb"]["total_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Рейтинговых очков</td>
-                                            <td class="text-right">@ViewBag.Data["ctb"]["ranked_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["ctb"]["ranked_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Всего попаданий</td>
-                                            <td class="text-right">@ViewBag.Data["ctb"]["total_hits"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["ctb"]["total_hits"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Реплеев просмотрено</td>
-                                            <td class="text-right">@ViewBag.Data["ctb"]["replays_watched"]</td>
+                                            <td class="text-right">@Model.Classic["ctb"]["replays_watched"]</td>
                                         </tr>
                                         <tr>
                                         </tr>
@@ -253,20 +247,20 @@
                                 <div>
                                     <table style="margin-right: auto">
                                         <tr class="bold-text">
-                                            <td>@ViewBag.Data["mania"]["pp"]pp</td>
-                                            <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Data["mania"]["accuracy"]), 2)%</td>
+                                            <td>@Model.Classic["mania"]["pp"]pp</td>
+                                            <td class="text-right">@Math.Round(Convert.ToDecimal(Model.Classic["mania"]["accuracy"]), 2)%</td>
                                         </tr>
                                         <tr class="bold-text">
-                                            <td>#@{ if (ViewBag.Data["mania"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Data["mania"]["global_leaderboard_rank"]; } (Global)</td>
-                                            <td class="text-right">#@{ if (ViewBag.Data["mania"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Data["mania"]["country_leaderboard_rank"]; } (@ViewBag.Data["country"])</td>
+                                            <td>#@{ if (Model.Classic["mania"]["global_leaderboard_rank"] == null) @nullable else @Model.Classic["mania"]["global_leaderboard_rank"]; } (Global)</td>
+                                            <td class="text-right">#@{ if (Model.Classic["mania"]["country_leaderboard_rank"] == null) @nullable else @Model.Classic["mania"]["country_leaderboard_rank"]; } (@Model.Classic["country"])</td>
                                         </tr>
                                         <tr>
                                             <td>Количество игр</td>
-                                            <td class="text-right">@ViewBag.Data["mania"]["playcount"]</td>
+                                            <td class="text-right">@Model.Classic["mania"]["playcount"]</td>
                                         </tr>
                                         <tr>
                                             <td>Время в игре</td>
-                                            <td class="text-right">@{ var time_mania = Convert.ToUInt64(ViewBag.Data["mania"]["play_time"]); var hours_mania = time_mania / 3600; var min_mania = time_mania % 3600 / 60; } @{@hours_mania}ч @{@min_mania}м</td>
+                                            <td class="text-right">@{ ulong time_mania = Convert.ToUInt64(Model.Classic["mania"]["play_time"]); ulong hours_mania = time_mania / 3600; ulong min_mania = time_mania % 3600 / 60; } @{@hours_mania}ч @{@min_mania}м</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">@playstyle</td>
@@ -275,19 +269,19 @@
                                     <table>
                                         <tr>
                                             <td>Всего очков</td>
-                                            <td class="text-right">@ViewBag.Data["mania"]["total_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["mania"]["total_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Рейтинговых очков</td>
-                                            <td class="text-right">@ViewBag.Data["mania"]["ranked_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["mania"]["ranked_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Всего попаданий</td>
-                                            <td class="text-right">@ViewBag.Data["mania"]["total_hits"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Classic["mania"]["total_hits"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Реплеев просмотрено</td>
-                                            <td class="text-right">@ViewBag.Data["mania"]["replays_watched"]</td>
+                                            <td class="text-right">@Model.Classic["mania"]["replays_watched"]</td>
                                         </tr>
                                         <tr>
                                         </tr>
@@ -301,20 +295,20 @@
                                 <div>
                                     <table style="margin-right: auto">
                                         <tr class="bold-text">
-                                            <td>@ViewBag.Relax["std"]["pp"]pp</td>
-                                            <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Relax["std"]["accuracy"]), 2)%</td>
+                                            <td>@Model.Relax["std"]["pp"]pp</td>
+                                            <td class="text-right">@Math.Round(Convert.ToDecimal(Model.Relax["std"]["accuracy"]), 2)%</td>
                                         </tr>
                                         <tr class="bold-text">
-                                            <td>#@{ if (ViewBag.Relax["std"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["std"]["global_leaderboard_rank"]; } (Global)</td>
-                                            <td class="text-right">#@{ if (ViewBag.Relax["std"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["std"]["country_leaderboard_rank"]; } (@ViewBag.Relax["country"])</td>
+                                            <td>#@{ if (Model.Relax["std"]["global_leaderboard_rank"] == null) @nullable else @Model.Relax["std"]["global_leaderboard_rank"]; } (Global)</td>
+                                            <td class="text-right">#@{ if (Model.Relax["std"]["country_leaderboard_rank"] == null) @nullable else @Model.Relax["std"]["country_leaderboard_rank"]; } (@Model.Relax["country"])</td>
                                         </tr>
                                         <tr>
                                             <td>Количество игр</td>
-                                            <td class="text-right">@ViewBag.Relax["std"]["playcount"]</td>
+                                            <td class="text-right">@Model.Relax["std"]["playcount"]</td>
                                         </tr>
                                         <tr>
                                             <td>Время в игре</td>
-                                            <td class="text-right">@{ var time_std_relax = Convert.ToUInt64(ViewBag.Relax["std"]["play_time"]); var hours_std_relax = time_std_relax / 3600; var min_std_relax = time_std_relax % 3600 / 60; } @{@hours_std_relax}ч @{@min_std_relax}м</td>
+                                            <td class="text-right">@{ ulong time_std_relax = Convert.ToUInt64(Model.Relax["std"]["play_time"]); ulong hours_std_relax = time_std_relax / 3600; ulong min_std_relax = time_std_relax % 3600 / 60; } @{@hours_std_relax}ч @{@min_std_relax}м</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">@playstyle</td>
@@ -323,19 +317,19 @@
                                     <table>
                                         <tr>
                                             <td>Всего очков</td>
-                                            <td class="text-right">@ViewBag.Relax["std"]["total_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["std"]["total_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Рейтинговых очков</td>
-                                            <td class="text-right">@ViewBag.Relax["std"]["ranked_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["std"]["ranked_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Всего попаданий</td>
-                                            <td class="text-right">@ViewBag.Relax["std"]["total_hits"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["std"]["total_hits"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Реплеев просмотрено</td>
-                                            <td class="text-right">@ViewBag.Relax["std"]["replays_watched"]</td>
+                                            <td class="text-right">@Model.Relax["std"]["replays_watched"]</td>
                                         </tr>
                                         <tr>
                                         </tr>
@@ -347,20 +341,20 @@
                                 <div>
                                     <table style="margin-right: auto">
                                         <tr class="bold-text">
-                                            <td>@ViewBag.Relax["taiko"]["pp"]pp</td>
-                                            <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Relax["taiko"]["accuracy"]), 2)%</td>
+                                            <td>@Model.Relax["taiko"]["pp"]pp</td>
+                                            <td class="text-right">@Math.Round(Convert.ToDecimal(Model.Relax["taiko"]["accuracy"]), 2)%</td>
                                         </tr>
                                         <tr class="bold-text">
-                                            <td>#@{ if (ViewBag.Relax["taiko"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["taiko"]["global_leaderboard_rank"]; } (Global)</td>
-                                            <td class="text-right">#@{ if (ViewBag.Relax["taiko"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["taiko"]["country_leaderboard_rank"]; } (@ViewBag.Relax["country"])</td>
+                                            <td>#@{ if (Model.Relax["taiko"]["global_leaderboard_rank"] == null) @nullable else @Model.Relax["taiko"]["global_leaderboard_rank"]; } (Global)</td>
+                                            <td class="text-right">#@{ if (Model.Relax["taiko"]["country_leaderboard_rank"] == null) @nullable else @Model.Relax["taiko"]["country_leaderboard_rank"]; } (@Model.Relax["country"])</td>
                                         </tr>
                                         <tr>
                                             <td>Количество игр</td>
-                                            <td class="text-right">@ViewBag.Relax["taiko"]["playcount"]</td>
+                                            <td class="text-right">@Model.Relax["taiko"]["playcount"]</td>
                                         </tr>
                                         <tr>
                                             <td>Время в игре</td>
-                                            <td class="text-right">@{ var time_taiko_relax = Convert.ToUInt64(ViewBag.Relax["taiko"]["play_time"]); var hours_taiko_relax = time_taiko_relax / 3600; var min_taiko_relax = time_taiko_relax % 3600 / 60; } @{@hours_taiko_relax}ч @{@min_taiko_relax}м</td>
+                                            <td class="text-right">@{ ulong time_taiko_relax = Convert.ToUInt64(Model.Relax["taiko"]["play_time"]); ulong hours_taiko_relax = time_taiko_relax / 3600; ulong min_taiko_relax = time_taiko_relax % 3600 / 60; } @{@hours_taiko_relax}ч @{@min_taiko_relax}м</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">@playstyle</td>
@@ -369,19 +363,19 @@
                                     <table>
                                         <tr>
                                             <td>Всего очков</td>
-                                            <td class="text-right">@ViewBag.Relax["taiko"]["total_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["taiko"]["total_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Рейтинговых очков</td>
-                                            <td class="text-right">@ViewBag.Relax["taiko"]["ranked_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["taiko"]["ranked_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Всего попаданий</td>
-                                            <td class="text-right">@ViewBag.Relax["taiko"]["total_hits"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["taiko"]["total_hits"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Реплеев просмотрено</td>
-                                            <td class="text-right">@ViewBag.Relax["taiko"]["replays_watched"]</td>
+                                            <td class="text-right">@Model.Relax["taiko"]["replays_watched"]</td>
                                         </tr>
                                         <tr>
                                         </tr>
@@ -393,20 +387,20 @@
                                 <div>
                                     <table style="margin-right: auto">
                                         <tr class="bold-text">
-                                            <td>@ViewBag.Relax["ctb"]["pp"]pp</td>
-                                            <td class="text-right">@Math.Round(Convert.ToDecimal(ViewBag.Relax["ctb"]["accuracy"]), 2)%</td>
+                                            <td>@Model.Relax["ctb"]["pp"]pp</td>
+                                            <td class="text-right">@Math.Round(Convert.ToDecimal(Model.Relax["ctb"]["accuracy"]), 2)%</td>
                                         </tr>
                                         <tr class="bold-text">
-                                            <td>#@{ if (ViewBag.Relax["ctb"]["global_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["ctb"]["global_leaderboard_rank"]; } (Global)</td>
-                                            <td class="text-right">#@{ if (ViewBag.Relax["ctb"]["country_leaderboard_rank"] == null) @nullable else @ViewBag.Relax["ctb"]["country_leaderboard_rank"]; } (@ViewBag.Relax["country"])</td>
+                                            <td>#@{ if (Model.Relax["ctb"]["global_leaderboard_rank"] == null) @nullable else @Model.Relax["ctb"]["global_leaderboard_rank"]; } (Global)</td>
+                                            <td class="text-right">#@{ if (Model.Relax["ctb"]["country_leaderboard_rank"] == null) @nullable else @Model.Relax["ctb"]["country_leaderboard_rank"]; } (@Model.Relax["country"])</td>
                                         </tr>
                                         <tr>
                                             <td>Количество игр</td>
-                                            <td class="text-right">@ViewBag.Relax["ctb"]["playcount"]</td>
+                                            <td class="text-right">@Model.Relax["ctb"]["playcount"]</td>
                                         </tr>
                                         <tr>
                                             <td>Время в игре</td>
-                                            <td class="text-right">@{ var time_ctb_relax = Convert.ToUInt64(ViewBag.Relax["ctb"]["play_time"]); var hours_ctb_relax = time_ctb_relax / 3600; var min_ctb_relax = time_ctb_relax % 3600 / 60; } @{@hours_ctb_relax}ч @{@min_ctb_relax}м</td>
+                                            <td class="text-right">@{ ulong time_ctb_relax = Convert.ToUInt64(Model.Relax["ctb"]["play_time"]); ulong hours_ctb_relax = time_ctb_relax / 3600; ulong min_ctb_relax = time_ctb_relax % 3600 / 60; } @{@hours_ctb_relax}ч @{@min_ctb_relax}м</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">@playstyle</td>
@@ -415,19 +409,19 @@
                                     <table>
                                         <tr>
                                             <td>Всего очков</td>
-                                            <td class="text-right">@ViewBag.Relax["ctb"]["total_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["ctb"]["total_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Рейтинговых очков</td>
-                                            <td class="text-right">@ViewBag.Relax["ctb"]["ranked_score"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["ctb"]["ranked_score"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Всего попаданий</td>
-                                            <td class="text-right">@ViewBag.Relax["ctb"]["total_hits"].ToString("#,#", culture)</td>
+                                            <td class="text-right">@Convert.ToUInt64(Model.Relax["ctb"]["total_hits"]).ToString("#,#", culture)</td>
                                         </tr>
                                         <tr>
                                             <td>Реплеев просмотрено</td>
-                                            <td class="text-right">@ViewBag.Relax["ctb"]["replays_watched"]</td>
+                                            <td class="text-right">@Model.Relax["ctb"]["replays_watched"]</td>
                                         </tr>
                                         <tr>
                                         </tr>
@@ -451,11 +445,11 @@
                         <!-- profile-grades here -->
 
                         <div id="profile-level">
-                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["std"]["level"] % 1 * 100)% 110%">
-                                <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["std"]["level"] % 1 * 100)%</b>
+                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)Model.Classic["std"]["level"] % 1 * 100)% 110%">
+                                <b class="white-text">@Math.Truncate((decimal)Model.Classic["std"]["level"] % 1 * 100)%</b>
                             </div>
                             <div class="progress-bar-percent">
-                                Level @Math.Truncate((decimal)ViewBag.Data["std"]["level"])
+                                Level @Math.Truncate((decimal)Model.Classic["std"]["level"])
                             </div>
                         </div>
                     </div>
@@ -467,11 +461,11 @@
                         <!-- profile-grades here -->
 
                         <div id="profile-level">
-                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["taiko"]["level"] % 1 * 100)% 110%">
-                                <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["taiko"]["level"] % 1 * 100)%</b>
+                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)Model.Classic["taiko"]["level"] % 1 * 100)% 110%">
+                                <b class="white-text">@Math.Truncate((decimal)Model.Classic["taiko"]["level"] % 1 * 100)%</b>
                             </div>
                             <div class="progress-bar-percent">
-                                Level @Math.Truncate((decimal)ViewBag.Data["taiko"]["level"])
+                                Level @Math.Truncate((decimal)Model.Classic["taiko"]["level"])
                             </div>
                         </div>
                     </div>
@@ -483,11 +477,11 @@
                         <!-- profile-grades here -->
 
                         <div id="profile-level">
-                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["ctb"]["level"] % 1 * 100)% 110%">
-                                <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["ctb"]["level"] % 1 * 100)%</b>
+                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)Model.Classic["ctb"]["level"] % 1 * 100)% 110%">
+                                <b class="white-text">@Math.Truncate((decimal)Model.Classic["ctb"]["level"] % 1 * 100)%</b>
                             </div>
                             <div class="progress-bar-percent">
-                                Level @Math.Truncate((decimal)ViewBag.Data["ctb"]["level"])
+                                Level @Math.Truncate((decimal)Model.Classic["ctb"]["level"])
                             </div>
                         </div>
                     </div>
@@ -499,11 +493,11 @@
                         <!-- profile-grades here -->
 
                         <div id="profile-level">
-                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Data["mania"]["level"] % 1 * 100)% 110%">
-                                <b class="white-text">@Math.Truncate((decimal)ViewBag.Data["mania"]["level"] % 1 * 100)%</b>
+                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)Model.Classic["mania"]["level"] % 1 * 100)% 110%">
+                                <b class="white-text">@Math.Truncate((decimal)Model.Classic["mania"]["level"] % 1 * 100)%</b>
                             </div>
                             <div class="progress-bar-percent">
-                                Level @Math.Truncate((decimal)ViewBag.Data["mania"]["level"])
+                                Level @Math.Truncate((decimal)Model.Classic["mania"]["level"])
                             </div>
                         </div>
                     </div>
@@ -516,11 +510,11 @@
                         <!-- profile-grades here -->
 
                         <div id="profile-level">
-                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Relax["std"]["level"] % 1 * 100)% 110%">
-                                <b class="white-text">@Math.Truncate((decimal)ViewBag.Relax["std"]["level"] % 1 * 100)%</b>
+                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)Model.Relax["std"]["level"] % 1 * 100)% 110%">
+                                <b class="white-text">@Math.Truncate((decimal)Model.Relax["std"]["level"] % 1 * 100)%</b>
                             </div>
                             <div class="progress-bar-percent">
-                                Level @Math.Truncate((decimal)ViewBag.Relax["std"]["level"])
+                                Level @Math.Truncate((decimal)Model.Relax["std"]["level"])
                             </div>
                         </div>
                     </div>
@@ -532,11 +526,11 @@
                         <!-- profile-grades here -->
 
                         <div id="profile-level">
-                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Relax["taiko"]["level"] % 1 * 100)% 110%">
-                                <b class="white-text">@Math.Truncate((decimal)ViewBag.Relax["taiko"]["level"] % 1 * 100)%</b>
+                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)Model.Relax["taiko"]["level"] % 1 * 100)% 110%">
+                                <b class="white-text">@Math.Truncate((decimal)Model.Relax["taiko"]["level"] % 1 * 100)%</b>
                             </div>
                             <div class="progress-bar-percent">
-                                Level @Math.Truncate((decimal)ViewBag.Relax["taiko"]["level"])
+                                Level @Math.Truncate((decimal)Model.Relax["taiko"]["level"])
                             </div>
                         </div>
                     </div>
@@ -548,11 +542,11 @@
                         <!-- profile-grades here -->
 
                         <div id="profile-level">
-                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)ViewBag.Relax["ctb"]["level"] % 1 * 100)% 110%">
-                                <b class="white-text">@Math.Truncate((decimal)ViewBag.Relax["ctb"]["level"] % 1 * 100)%</b>
+                            <div class="progress-bar" style="background-size: @Math.Truncate((decimal)Model.Relax["ctb"]["level"] % 1 * 100)% 110%">
+                                <b class="white-text">@Math.Truncate((decimal)Model.Relax["ctb"]["level"] % 1 * 100)%</b>
                             </div>
                             <div class="progress-bar-percent">
-                                Level @Math.Truncate((decimal)ViewBag.Relax["ctb"]["level"])
+                                Level @Math.Truncate((decimal)Model.Relax["ctb"]["level"])
                             </div>
                         </div>
                     </div>
@@ -574,7 +568,7 @@
                     </div>
 
                     <div class="base-container">
-                        <div>@ViewBag.Userpage</div>
+                        <div>@Model.Userpage</div>
                     </div>
 
                     <div class="profile-separator">

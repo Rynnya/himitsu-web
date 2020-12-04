@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http;
+@model Himitsu.Models.Scoreboard
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,8 +13,8 @@
     <meta charset="utf-8">
     <title>Himitsu</title>
     <style>:root {
-      --background: url(@ViewBag.Background);
-      --background-offset: @ViewBag.Horizontal @ViewBag.Vertical;
+      --background: url(@Model.Background.Link);
+      --background-offset: @Model.Background.Horizontal @Model.Background.Vertical;
     }</style>
 </head>
 
@@ -37,7 +38,7 @@
 </header>
 
 
-<body onload="selected(@ViewBag.r, @ViewBag.q.scoreboard_display_classic, @ViewBag.q.scoreboard_display_relax, @ViewBag.q.score_overwrite_std, @ViewBag.q.score_overwrite_taiko, @ViewBag.q.score_overwrite_ctb, @ViewBag.q.score_overwrite_mania), selectors(), enterBlocker(), displayContent()">
+<body onload="selected(@Model.isRelax, @Model.ScoreClassic, @Model.ScoreRelax, @Model.ScoreOW_STD, @Model.ScoreOW_Taiko, @Model.ScoreOW_CTB, @Model.ScoreOW_Mania), selectors(), enterBlocker(), displayContent()">
     <div id="content" class="content">
         <div class="panel">
 
