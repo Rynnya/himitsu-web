@@ -81,9 +81,9 @@ namespace Himitsu.Views.settings
                 return RedirectToAction("login", "main");
             Background model = new Background(_db, (int)HttpContext.Session.GetInt32("userid"));
             ViewBag.Userpage = (string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).FirstOrDefault().userpage_content;
-            dynamic userpage = new HtmlContentBuilder().AppendHtml(Utility.ParseBB((string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).FirstOrDefault().userpage_content));
+            IHtmlContentBuilder userpage = new HtmlContentBuilder().AppendHtml(Utility.ParseBB((string)_db.Query("users_stats").Select("userpage_content").Where("id", HttpContext.Session.GetInt32("userid")).FirstOrDefault().userpage_content));
             if (userpage != null)
-                ViewBag.Encoded = userpage.userpage_content;
+                ViewBag.Encoded = userpage;
             return View(model);
         }
 
