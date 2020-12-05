@@ -37,7 +37,7 @@ namespace Himitsu.Pages
             {
                 ID = id,
                 Userpage = userpage,
-                Background = new Background(_db, (int)HttpContext.Session.GetInt32("userid"))
+                Background = new Background(_db, id)
             };
             return View(profile);
         }
