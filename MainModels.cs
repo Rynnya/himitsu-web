@@ -67,6 +67,7 @@ namespace Himitsu.Models
     {
         public int ID { get; set; }
         public string Username { get; set; }
+        public string Country { get; set; }
         public int PlayStyle { get; set; }
         public int FavClassic { get; set; }
         public int FavRelax { get; set; }
@@ -77,6 +78,7 @@ namespace Himitsu.Models
         public Profile(JToken json)
         {
             Username = json["username"].ToString();
+            Country = json["country"].ToString();
             PlayStyle = Convert.ToInt32(json["play_style"]);
             FavClassic = Convert.ToInt32(json["favourite_mode"]);
             FavRelax = Convert.ToInt32(json["favourite_relax"]);

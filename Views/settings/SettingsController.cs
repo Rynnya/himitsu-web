@@ -8,7 +8,6 @@ using System.Drawing;
 using Microsoft.AspNetCore.Html;
 using Himitsu.Models;
 using NETCore.Encrypt;
-using Himitsu.Models;
 
 namespace Himitsu.Views.settings
 {
